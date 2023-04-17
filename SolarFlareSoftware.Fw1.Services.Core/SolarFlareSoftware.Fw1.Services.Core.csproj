@@ -4,6 +4,14 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Company>Solar Flare Software, Inc.</Company>
+    <Description>The core services objects that implement the Fw1 framework  interfaces to be used with Entity Framework Core</Description>
+    <Copyright>© 2022, 2023 Solar Flare Software, Inc.</Copyright>
+    <RepositoryUrl>https://github.com/SolarFlareSoftware/SolarFlareSoftware.Frameworks</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>.NET;.NET Core;MVC</PackageTags>
+    <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
   </PropertyGroup>
 
   <ItemGroup>

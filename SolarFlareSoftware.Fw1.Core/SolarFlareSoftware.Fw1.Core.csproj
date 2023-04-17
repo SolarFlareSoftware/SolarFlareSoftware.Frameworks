@@ -6,6 +6,14 @@
     <Nullable>disable</Nullable>
     <AssemblyName>SolarFlareSoftware.Fw1.Core</AssemblyName>
     <RootNamespace>SolarFlareSoftware.Fw1.Core</RootNamespace>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Company>Solar Flare Software, Inc.</Company>
+    <Copyright>© 2022, 2023 Solar Flare Software, Inc.</Copyright>
+    <RepositoryUrl>https://github.com/SolarFlareSoftware/SolarFlareSoftware.Frameworks</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>.NET;.NET Core;MVC</PackageTags>
+    <Description>This is the core library for the Solar Flare Software Fw1 modular framework</Description>
+    <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
   </PropertyGroup>
 
 </Project>
