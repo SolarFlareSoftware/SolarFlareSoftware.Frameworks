@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using SolarFlareSoftware.Fw1.Core.Interfaces;
+using System;
+using System.Collections.Generic;
 
-namespace PTC.Repository.EF
+namespace SolarFlareSoftware.Fw1.Repository.EF
 {
     public class UnitOfWork : IUnitOfWork, IDisposable
     {
@@ -88,23 +90,26 @@ namespace PTC.Repository.EF
             {
                 if(repo.HasChanges())
                 {
-                    var args = repo.SignalPreSaveEventHandlers();
+                    // allow for some pre-save functionality to occur. this event can cancel the save by setting CancelSave to true.
+                    //var args = repo.SignalPreSaveEventHandlers();
                     modelType = repo.ModelType();
-                    if (args.CancelSave)
-                    {
-                        saveFailed = true;
-                        break;
-                    }
-                    else
-                    {
+                    //if (args.CancelSave)
+                    //{
+                    //    saveFailed = true;
+                    //    break;
+                    //}
+                    //else
+                    //{
                         bool saved = Save(repo.DatabaseContext);
+                        // allow for some post-save functionality. this will be called whether or not Save succeeded, passing the 
+                        // result to the event signaller
                         repo.SignalSaveEventHandlers(saved);
                         if (!saved)
                         {
                             saveFailed = true;
                             break;
                         }
-                    }
+                    //}
                 }
             }
 
@@ -181,7 +186,8 @@ namespace PTC.Repository.EF
             try
             {
                 // the IDatabaseContext object will return a true if the save was successful, false if not.
-                saveSuccessful = context.Save();
+                var result = context.Save();
+                saveSuccessful = result.Succeeded;
             }
             catch (Exception)
             {

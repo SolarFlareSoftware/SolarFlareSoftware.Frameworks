@@ -1,5 +1,7 @@
 ﻿using SolarFlareSoftware.Fw1.Core.Interfaces;
 using SolarFlareSoftware.Fw1.Core.Specifications;
+using System;
+using System.Collections.Generic;
 using System.Security.Principal;
 
 namespace SolarFlareSoftware.Fw1.Services.Core
@@ -51,7 +53,7 @@ namespace SolarFlareSoftware.Fw1.Services.Core
             return Repository.GetItemWithSpecification(spec);
         }
 
-        public virtual IBaseModelPagedList<T> GetPagedList(ISpecification<T> spec, int page, int pageSize)
+        public virtual IBaseModelPagedList<T> GetPagedList(ISpecification<T> spec, int page = 1, int pageSize = 10)
         {
             return Repository.GetListWithSpecification(spec, page, pageSize);
         }
@@ -61,7 +63,7 @@ namespace SolarFlareSoftware.Fw1.Services.Core
             return Repository.Update(entity);
         }
 
-        public IBaseModelPagedList<T> GetPagedList(List<SpecificationSortOrder<T>> sortOrders = null, int page = 0, int pageSize = 0)
+        public virtual IBaseModelPagedList<T> GetPagedList(List<SpecificationSortOrder<T>> sortOrders = null, int page = 1, int pageSize = 10)
         {
             return Repository.GetPagedList(sortOrders, page, pageSize);
         }

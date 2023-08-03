@@ -1,4 +1,5 @@
 ﻿using SolarFlareSoftware.Fw1.Core.Interfaces;
+using System;
 
 namespace SolarFlareSoftware.Fw1.Core.Events
 {
@@ -27,7 +28,7 @@ namespace SolarFlareSoftware.Fw1.Core.Events
             ActionBy = actionBy;
         }
 
-        private void Repository_RepositoryPreSaveEvent(object sender, RepositoryPreSaveEventArgs e)
+        private void Repository_RepositoryPreSaveEvent(object sender, RepositoryPreSaveEventArgs<T> e)
         {
             // this is a safety check to deal with potential unsubscribes happening at an inopportune time
             EventHandler<ServicePreSaveNotificationEventArgs<T>> saveEvent = PreSaveNotificationEvent;

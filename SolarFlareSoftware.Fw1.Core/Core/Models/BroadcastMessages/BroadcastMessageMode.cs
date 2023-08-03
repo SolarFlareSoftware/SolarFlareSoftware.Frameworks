@@ -1,4 +1,5 @@
 ﻿using SolarFlareSoftware.Fw1.Core.Interfaces;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
