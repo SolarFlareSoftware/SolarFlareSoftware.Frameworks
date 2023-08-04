@@ -8,12 +8,22 @@
     <Company>Solar Flare Software, Inc.</Company>
     <Copyright>© 2022, 2023 Solar Flare Software, Inc.</Copyright>
     <RepositoryUrl>https://github.com/SolarFlareSoftware/SolarFlareSoftware.Frameworks</RepositoryUrl>
-    <Description>An implementation of the Fw1 framework Repository and Unit of Work interfaces to be used with Entity Framework Core</Description>
+    <Description>An implementation of Solar Flare's FrameworkOne Repository and Unit of Work interfaces. Requires Entity Framework Core.</Description>
     <RepositoryType>git</RepositoryType>
     <PackageTags>.NET;.NET Core;MVC;Entity Framework Core</PackageTags>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
     <Version>1.0.6</Version>
+    <PackageLicenseFile>C:\Users\timwa\source\repos\SolarFlareSoftware.Frameworks\SolarFlareSoftware.Fw1.Repository.EF\License.txt</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="License.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="License.txt" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.5" />

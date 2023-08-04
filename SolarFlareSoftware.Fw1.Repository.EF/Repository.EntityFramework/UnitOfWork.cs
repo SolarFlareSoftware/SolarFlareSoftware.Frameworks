@@ -90,26 +90,13 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             {
                 if(repo.HasChanges())
                 {
-                    // allow for some pre-save functionality to occur. this event can cancel the save by setting CancelSave to true.
-                    //var args = repo.SignalPreSaveEventHandlers();
                     modelType = repo.ModelType();
-                    //if (args.CancelSave)
-                    //{
-                    //    saveFailed = true;
-                    //    break;
-                    //}
-                    //else
-                    //{
-                        bool saved = Save(repo.DatabaseContext);
-                        // allow for some post-save functionality. this will be called whether or not Save succeeded, passing the 
-                        // result to the event signaller
-                        repo.SignalSaveEventHandlers(saved);
-                        if (!saved)
-                        {
-                            saveFailed = true;
-                            break;
-                        }
-                    //}
+                    var saveResult = repo.SaveChanges();
+                    if (!saveResult.Succeeded)
+                    {
+                        saveFailed = true;
+                        break;
+                    }
                 }
             }
 
@@ -139,7 +126,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                             }
                             catch (Exception ex)
                             {
-                                Logger.LogError(ex, string.Format("Error in UnitOfWork.Complete trying to commit the transaction involving a {0} record)", modelType));
+                                Logger.LogError(ex, string.Format("Error in UnitOfWork.Complete trying to commit the transaction related to a {0} record)", modelType));
                                 committed = false;
                                 throw;
                             }
@@ -178,24 +165,24 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             }
         }
 
-        private bool Save(IDatabaseContext context)
-        {
-            bool saveSuccessful = false;
-            string modelType = string.Empty;
+        //private bool Save(IDatabaseContext context)
+        //{
+        //    bool saveSuccessful = false;
+        //    string modelType = string.Empty;
 
-            try
-            {
-                // the IDatabaseContext object will return a true if the save was successful, false if not.
-                var result = context.Save();
-                saveSuccessful = result.Succeeded;
-            }
-            catch (Exception)
-            {
-                // don't log (EFContext already did. just avoid blowing up.
-            }
+        //    try
+        //    {
+        //        // the IDatabaseContext object will return a true if the save was successful, false if not.
+        //        var result = context.Save();
+        //        saveSuccessful = result.Succeeded;
+        //    }
+        //    catch (Exception)
+        //    {
+        //        // don't log (EFContext already did. just avoid blowing up.
+        //    }
 
-            return saveSuccessful;
-        }
+        //    return saveSuccessful;
+        //}
 
         //private bool disposed = false;
 

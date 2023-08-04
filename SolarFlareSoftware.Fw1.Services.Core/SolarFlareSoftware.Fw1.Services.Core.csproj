@@ -6,14 +6,24 @@
     <Nullable>disable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Company>Solar Flare Software, Inc.</Company>
-    <Description>The core services objects that implement the Fw1 framework  interfaces to be used with Entity Framework Core</Description>
+    <Description>The core services package for Solar Flare's FrameworkOne. Requires FrameworkOne's Core and Repository.EF packages.</Description>
     <Copyright>© 2022, 2023 Solar Flare Software, Inc.</Copyright>
     <RepositoryUrl>https://github.com/SolarFlareSoftware/SolarFlareSoftware.Frameworks</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>.NET;.NET Core;MVC</PackageTags>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
-    <Version>1.0.1</Version>
+    <Version>1.0.6</Version>
+    <PackageLicenseFile>C:\Users\timwa\source\repos\SolarFlareSoftware.Frameworks\SolarFlareSoftware.Fw1.Services.Core\License.txt</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="License.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="License.txt" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SolarFlareSoftware.Fw1.Core\SolarFlareSoftware.Fw1.Core.csproj" />

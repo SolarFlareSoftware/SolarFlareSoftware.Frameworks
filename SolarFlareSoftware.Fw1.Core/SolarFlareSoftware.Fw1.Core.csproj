@@ -12,10 +12,20 @@
     <RepositoryUrl>https://github.com/SolarFlareSoftware/SolarFlareSoftware.Frameworks</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>.NET;.NET Core;MVC</PackageTags>
-    <Description>This is the core library for the Solar Flare Software Fw1 modular framework</Description>
+    <Description>This is the core package for the Solar Flare Software FrameworkOne modular framework</Description>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
     <Authors>SolarFlareSoftware</Authors>
-    <Version>1.0.1</Version>
+    <Version>1.0.6</Version>
+    <PackageLicenseFile>C:\Users\timwa\source\repos\SolarFlareSoftware.Frameworks\SolarFlareSoftware.Fw1.Core\License.txt</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="License.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="License.txt" />
+  </ItemGroup>
 
 </Project>

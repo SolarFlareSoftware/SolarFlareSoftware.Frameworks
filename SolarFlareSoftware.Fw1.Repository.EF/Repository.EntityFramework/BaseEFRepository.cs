@@ -757,19 +757,6 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                                             BaseModel oldItem;
                                             if (!dbItemsMap.TryGetValue(itemKeyValue, out oldItem))
                                             {
-                                                //if (item is IAuditableFull)
-                                                //{
-                                                //    DateTime now = DateTime.Now;
-                                                //    ((IAuditableFull)item).AuditAddDate = now;
-                                                //    ((IAuditableFull)item).AuditAddUserName = Principal == null ? Constants.GENERIC_SYSTEM_USER_NAME : ((ClaimsPrincipal)Principal).Identity.Name;
-                                                //    ((IAuditableFull)item).AuditChangeDate = now;
-                                                //    ((IAuditableFull)item).AuditChangeUserName = Principal == null ? Constants.GENERIC_SYSTEM_USER_NAME : ((ClaimsPrincipal)Principal).Identity.Name;
-                                                //}
-                                                //if (item is IAuditableAddDate)
-                                                //{
-                                                //    ((IAuditableFull)item).AuditAddDate = DateTime.Now;
-                                                //}
-                                                
                                                 accessor.Add(dbEntry.Entity, item, true);
                                                 // remove the item from the map. this will allow us to determine which ones need to be deleted below
                                                 dbItemsMap.Remove(itemKeyValue);
@@ -777,17 +764,6 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                                             else
                                             {
                                                 // update the object if found
-                                                //if(oldItem is IAuditableFull)
-                                                //{
-                                                //    ((IAuditableFull)item).AuditAddDate = ((IAuditableFull)oldItem).AuditAddDate;
-                                                //    ((IAuditableFull)item).AuditAddUserName = ((IAuditableFull)oldItem).AuditAddUserName;
-                                                //    ((IAuditableFull)item).AuditChangeDate = DateTime.Now;
-                                                //    ((IAuditableFull)item).AuditChangeUserName = Principal == null ? Constants.GENERIC_SYSTEM_USER_NAME : ((ClaimsPrincipal)Principal).Identity.Name;
-                                                //}
-                                                //if (item is IAuditableAddDate)
-                                                //{
-                                                //    ((IAuditableFull)item).AuditAddDate = ((IAuditableFull)oldItem).AuditAddDate;
-                                                //}
                                                 _dbContext.Entry(oldItem).CurrentValues.SetValues(item);
 
                                                 // remove the item from the map. this will allow us to determine which ones need to be deleted below
@@ -919,6 +895,11 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             try
             {
                 _dbContext.Set<T>().RemoveRange(models.ToArray());
+                if (!InTransaction)
+                {
+                    var result = SaveChanges();
+                    return result.Succeeded;
+                }
             }
             catch (Exception ex)
             {
@@ -974,7 +955,13 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             GC.SuppressFinalize(this);
         }
 
-        public virtual IDatabaseActionResult SaveChanges(bool inTransaction = false)
+        /// <summary>
+        /// This function performs the saving of the data to the underlying data store
+        /// </summary>
+        /// <param name="inTransaction"></param>
+        /// <returns>IDatabaseActionResult</returns>
+        /// <remarks>NOTE: this function should never be called from the Add, Updated, or Delete functions IF the repository is part of a Transaction</remarks>
+        public virtual IDatabaseActionResult SaveChanges()
         {
             DatabaseActionResult result = new() { Succeeded = true };
             try
@@ -984,14 +971,13 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                 foreach (EntityEntry entityEntry in changes)
                 {
                     args = SignalPreSaveEventHandlers(entityEntry as T);
-                    //modelType = repo.ModelType();
                     if (args.CancelSave)
                     {
                         result.Succeeded = false;
                     } 
                 }
 
-                if (!inTransaction && result.Succeeded)
+                if (result.Succeeded)
                 {
                     result = _dbContext.Save() as DatabaseActionResult;
                     SignalSaveEventHandlers(result.Succeeded);

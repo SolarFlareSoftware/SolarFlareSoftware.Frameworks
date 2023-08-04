@@ -35,15 +35,6 @@ namespace SolarFlareSoftware.Fw1.Repository.EF.Context
             Logger = logger;
         }
 
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{            
-        //}
-
-        //protected override void OnModelCreating(ModelBuilder modelBuilder)
-        //{
-        //}
-
-
         public void AbandonTransaction()
         {
             if (Transaction != null)
@@ -87,7 +78,6 @@ namespace SolarFlareSoftware.Fw1.Repository.EF.Context
         [DebuggerNonUserCode]
         public virtual IDatabaseActionResult Save()
         {
-            //bool saveSuccessful = false;
             DatabaseActionResult result = new();
             try
             {

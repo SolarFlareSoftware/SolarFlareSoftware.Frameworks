@@ -7,7 +7,7 @@ namespace SolarFlareSoftware.Fw1.Core.Interfaces
     {
         IDatabaseContext DatabaseContext { get; }
         bool InTransaction { get; set; }
-        IDatabaseActionResult SaveChanges(bool inTransaction = false);
+        IDatabaseActionResult SaveChanges();
         bool HasChanges();
         string ModelType();
         void SignalSaveEventHandlers(bool saveSuccessful);
