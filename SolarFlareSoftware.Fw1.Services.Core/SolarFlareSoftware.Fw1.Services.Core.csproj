@@ -13,12 +13,14 @@
     <PackageTags>.NET;.NET Core;MVC</PackageTags>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
     <Version>1.0.6</Version>
-    <PackageLicenseFile>C:\Users\timwa\source\repos\SolarFlareSoftware.Frameworks\SolarFlareSoftware.Fw1.Services.Core\License.txt</PackageLicenseFile>
+    <PackageLicenseFile>License.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="License.txt" />
+    <None Remove="nuget.config" />
+    <None Remove="nuget.config.OLD" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,4 +31,7 @@
     <ProjectReference Include="..\SolarFlareSoftware.Fw1.Core\SolarFlareSoftware.Fw1.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+	<None Include="License.txt" Pack="true" PackagePath="" />
+  </ItemGroup>
 </Project>

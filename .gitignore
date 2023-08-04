@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/SolarFlareSoftware.Fw1.Core/nuget.config.OLD
+/SolarFlareSoftware.Fw1.Repository.EF/nuget.config.OLD
+/SolarFlareSoftware.Fw1.Services.Core/nuget.config.OLD

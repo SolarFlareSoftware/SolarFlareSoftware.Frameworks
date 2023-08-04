@@ -10,9 +10,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SolarFlareSoftware.Fw1.Services.Core", "SolarFlareSoftware.Fw1.Services.Core\SolarFlareSoftware.Fw1.Services.Core.csproj", "{CE86F159-A4FB-484A-B8A6-D5A725565BA5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F0E974AE-7BA4-42AE-9680-68D3DC907580}"
-	ProjectSection(SolutionItems) = preProject
-		License.txt = License.txt
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -16,16 +16,16 @@
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
     <Authors>SolarFlareSoftware</Authors>
     <Version>1.0.6</Version>
-    <PackageLicenseFile>C:\Users\timwa\source\repos\SolarFlareSoftware.Frameworks\SolarFlareSoftware.Fw1.Core\License.txt</PackageLicenseFile>
+    <PackageLicenseFile>License.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="License.txt" />
+    <None Remove="nuget.config" />
+    <None Remove="nuget.config.OLD" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="License.txt" />
+	<None Include="License.txt" Pack="true" PackagePath="" />
   </ItemGroup>
-
 </Project>
