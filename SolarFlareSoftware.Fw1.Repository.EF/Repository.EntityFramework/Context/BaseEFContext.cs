@@ -29,7 +29,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF.Context
             Logger = logger;
         }
 
-        public BaseEFContext(DbContextOptions<DbContext> options, IPrincipal principal, ILogger<IDatabaseContext> logger) : base(options)
+        protected BaseEFContext(DbContextOptions options, IPrincipal principal, ILogger<IDatabaseContext> logger) : base(options)
         {
             Principal = principal;
             Logger = logger;
