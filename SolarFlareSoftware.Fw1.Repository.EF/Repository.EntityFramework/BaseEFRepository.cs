@@ -3,12 +3,16 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Logging;
 using SolarFlareSoftware.Fw1.Core;
+using SolarFlareSoftware.Fw1.Core.Core.Interfaces;
 using SolarFlareSoftware.Fw1.Core.Events;
 using SolarFlareSoftware.Fw1.Core.Interfaces;
 using SolarFlareSoftware.Fw1.Core.Models;
 using SolarFlareSoftware.Fw1.Core.Specifications;
 using SolarFlareSoftware.Fw1.Repository.EF.Context;
+using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
@@ -17,37 +21,40 @@ using System.Security.Principal;
 
 namespace SolarFlareSoftware.Fw1.Repository.EF
 {
-    public class EFRepository<T> : IDisposable, IRepository<T> where T : BaseModel
+    public class BaseEFRepository<T> : IDisposable, IRepository<T> where T : BaseModel
     {
-        public readonly EFContext _dbContext;
+        protected readonly BaseEFContext _dbContext;
         public bool InTransaction { get; set; }
         public IDatabaseContext DatabaseContext { get { return _dbContext; } }
-        public IModelValidator<T> Validator { get; set; }
-        public IPrincipal Principal { get; set; }
-        public event EventHandler<RepositoryPreSaveEventArgs> RepositoryPreSaveEvent;
+        protected IModelValidator<T> Validator { get; set; }
+        protected IPrincipal Principal { get; set; }
+        public event EventHandler<RepositoryPreSaveEventArgs<T>> RepositoryPreSaveEvent;
         public event EventHandler<RepositorySaveEventArgs> RepositorySaveEvent;
 
-        private ILogger<EFRepository<T>> Logger { get; set; }
+        protected ILogger<IRepository<T>> Logger { get; set; }
 
         /// <summary>
         /// We DI the database context and an indicator of whether or not it is part of a Transaction. 
         /// </summary>
-        /// <param name="dbContext">An instance of IDatabaseContext, specifically an SERContext instance (the EFRepository is Entity Framework Specific, and SERContext is, too.</param>
+        /// <param name="dbContext">An instance of IDatabaseContext, specifically an SERContext instance (the BaseEFRepository is Entity Framework Specific, and SERContext is, too.</param>
         /// <param name="inTransaction">a bool indicating if this repository is part of a transaction. If not, the add and update methods will be atomic, performing a Save after changes made to the repository contents.</param>
-        public EFRepository(IDatabaseContext dbContext, IPrincipal principal, IModelValidator<T> validator, ILogger<EFRepository<T>> logger, bool inTransaction = false)
+        public BaseEFRepository(IDatabaseContext dbContext, IPrincipal principal, ILogger<IRepository<T>> logger, IModelValidator<T> validator = null, bool inTransaction = false)
         {
-            _dbContext = (EFContext)dbContext;
+            _dbContext = (BaseEFContext)dbContext;
             Validator = validator;
             Principal = principal;
             Logger = logger;
             InTransaction = inTransaction;
         }
 
-        // allow the invocation to be overrideable
-        protected virtual void OnRaisePreSaveEvent(RepositoryPreSaveEventArgs e)
+        /// <summary>
+        /// Before the Save completes, this event is ra
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void OnRaisePreSaveEvent(RepositoryPreSaveEventArgs<T> e)
         {
             // this is a safety check to deal with potential unsubscribes happening at an innopportune time
-            EventHandler<RepositoryPreSaveEventArgs> preSaveEvent = RepositoryPreSaveEvent;
+            EventHandler<RepositoryPreSaveEventArgs<T>> preSaveEvent = RepositoryPreSaveEvent;
             if (preSaveEvent != null)
             {
                 preSaveEvent(this, e);
@@ -296,6 +303,24 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             return query.ToList();
         }
 
+        public virtual BaseModelPagedList<T> GetAllWithSpecification(ISpecification<T> spec, int page = 0, int pageSize = 0)
+        {
+            IQueryable<T> query = _dbContext.Set<T>().AsQueryable();
+            query = AddSortOrdersToQuery(query, spec.SortOrderList);
+
+            query = ExtendQueryWithOnlyIncludes(spec, query);
+            // only add the Skip and Take if both paging elements were provided
+            if (!(page == 0 && pageSize == 0))
+            {
+                query = query.Skip((page - 1) * pageSize).Take(pageSize);
+            }
+            BaseModelPagedList<T> depl = new BaseModelPagedList<T>();
+            depl.PageNumber = page;
+            depl.PageSize = pageSize;
+            depl.EntityList = query.ToList();
+            return depl;
+        }
+
         public virtual BaseModelPagedList<T> GetAllWithSortOrders(List<SpecificationSortOrder<T>> sortOrders, int page = 0, int pageSize = 0)
         {
             BaseModelPagedList<T> depl = new BaseModelPagedList<T>();
@@ -448,7 +473,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             return groupQuery.ToList();
         }
 
-        public BaseModelPagedList<T> GetPagedList(List<SpecificationSortOrder<T>> sortOrderList = null, int page = 0, int pageSize = 0)
+        public virtual BaseModelPagedList<T> GetPagedList(List<SpecificationSortOrder<T>> sortOrderList = null, int page = 0, int pageSize = 0)
         {
             BaseModelPagedList<T> depl = new BaseModelPagedList<T>();
             IQueryable<T> query = _dbContext.Set<T>().AsQueryable();
@@ -489,7 +514,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             return depl;
         }
 
-        public ProjectedModelPagedList GetProjectedListWithSpecification(IProjection projection, ISpecification<T> spec, int page = 0, int pageSize = 0)
+        public virtual ProjectedModelPagedList GetProjectedListWithSpecification(IProjection projection, ISpecification<T> spec, int page = 0, int pageSize = 0)
         {
             ProjectedModelPagedList depl = new ProjectedModelPagedList();
 
@@ -511,7 +536,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             return depl;
         }
 
-        public ProjectedModelList GetUnpagedProjectedListWithSpecification(IProjection projection, ISpecification<T> spec)
+        public virtual ProjectedModelList GetUnpagedProjectedListWithSpecification(IProjection projection, ISpecification<T> spec)
         {
             ProjectedModelList depl = new ProjectedModelList();
 
@@ -525,7 +550,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             return depl;
         }
 
-        public List<T> GetListFromSql(string sql, params QueryParameter[] args)
+        public virtual List<T> GetListFromSql(string sql, params QueryParameter[] args)
         {
             List<T> resultList = null;
             if (args?.Length > 0)
@@ -556,6 +581,11 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
 
         private T PreActionValidation(T entity)
         {
+            if(Validator == null)
+            {
+                return entity;// if no validator, assume true
+            }
+
             var validationResults = Validator.Validate(entity);
             if (!validationResults.IsValid)
             {
@@ -571,6 +601,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
         /// <returns>the added entity. NOTE: the <seealso cref="ISupportsValidation"/> properties are used to pass any error information back in the entity.</returns>
         public virtual T Add(T entity)
         {
+            DatabaseActionResult result = null;
             entity = PreActionValidation(entity);
             if (!entity.IsValid) {
                 return entity;
@@ -582,14 +613,17 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                 // if we are not in a Transaction (the UnitOfWork will take care of triggering the save when the Transaction is complete) and additions were made, save said additions.
                 if (!InTransaction && newEntity?.State == EntityState.Added)
                 {
-                    entity.IsValid = SaveChanges();
+                    result = SaveChanges() as DatabaseActionResult;
+                    entity.IsValid = result.Succeeded;
                 }
             }
             catch (Exception ex)
             {
+                entity.IsValid = false;
+                entity.ValidationErrors.Add("SaveError", "A critical error was encountered while attempting to save your data.");
                 if (!InTransaction)
                 {
-                    Logger.LogError(ex, "Error in EFRepository.Add"); 
+                    Logger.LogError(ex, "Error in BaseEFRepository.Add"); 
                 }
             }
             return entity;
@@ -627,13 +661,14 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                 // if we are not in a Transaction (the UnitOfWork will take care of triggering the save when the Transaction is complete) and additions were made, save said additions.
                 if (!InTransaction)
                 {
-                    successful = SaveChanges();
+                    var result = SaveChanges() as DatabaseActionResult;
+                    successful = result.Succeeded;
                 }
             }
             catch (Exception ex)
             {
                 // TODO: log the exception
-                Logger.LogError(ex, "Error in EFRepository.AddRange");
+                Logger.LogError(ex, "Error in BaseEFRepository.AddRange");
                 successful = false;
             }
 
@@ -645,6 +680,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
         /// for those objects will be set here and not in SaveChanges. SaveChanges will set the values for the parent object only.
         /// </summary>
         /// <param name="entityIn">a BaseModel of type T</param>
+        /// <exception cref="EntityNotFoundInRepositoryException">This is thrown if no matching entity is found in the Context</exception>
         /// <returns>the updated entity. NOTE: the <seealso cref="ISupportsValidation"/> properties are used to pass any error information back in the entity.</returns>
         public virtual T Update(T entityIn)
         {
@@ -658,9 +694,8 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             T entityInRepository = _dbContext.Set<T>().Find(entityPrimaryKeyValue);
             if (entityInRepository == null)
             {
-                // TODO: log an error (should not be able to update a record that does not exist in the repo)
                 var ex = new EntityNotFoundInRepositoryException(typeof(T).ToString());
-                Logger.LogError(ex, "Error in EFRepository.Update");
+                Logger.LogError(ex, "Error in BaseEFRepository.Update");
                 throw ex;
             }
             else
@@ -722,19 +757,6 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                                             BaseModel oldItem;
                                             if (!dbItemsMap.TryGetValue(itemKeyValue, out oldItem))
                                             {
-                                                if (item is IAuditableFull)
-                                                {
-                                                    DateTime now = DateTime.Now;
-                                                    ((IAuditableFull)item).AuditAddDate = now;
-                                                    ((IAuditableFull)item).AuditAddUserName = Principal == null ? Constants.GENERIC_SYSTEM_USER_NAME : ((ClaimsPrincipal)Principal).Identity.Name;
-                                                    ((IAuditableFull)item).AuditChangeDate = now;
-                                                    ((IAuditableFull)item).AuditChangeUserName = Principal == null ? Constants.GENERIC_SYSTEM_USER_NAME : ((ClaimsPrincipal)Principal).Identity.Name;
-                                                }
-                                                if (item is IAuditableAddDate)
-                                                {
-                                                    ((IAuditableFull)item).AuditAddDate = DateTime.Now;
-                                                }
-                                                
                                                 accessor.Add(dbEntry.Entity, item, true);
                                                 // remove the item from the map. this will allow us to determine which ones need to be deleted below
                                                 dbItemsMap.Remove(itemKeyValue);
@@ -742,17 +764,6 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                                             else
                                             {
                                                 // update the object if found
-                                                if(oldItem is IAuditableFull)
-                                                {
-                                                    ((IAuditableFull)item).AuditAddDate = ((IAuditableFull)oldItem).AuditAddDate;
-                                                    ((IAuditableFull)item).AuditAddUserName = ((IAuditableFull)oldItem).AuditAddUserName;
-                                                    ((IAuditableFull)item).AuditChangeDate = DateTime.Now;
-                                                    ((IAuditableFull)item).AuditChangeUserName = Principal == null ? Constants.GENERIC_SYSTEM_USER_NAME : ((ClaimsPrincipal)Principal).Identity.Name;
-                                                }
-                                                if (item is IAuditableAddDate)
-                                                {
-                                                    ((IAuditableFull)item).AuditAddDate = ((IAuditableFull)oldItem).AuditAddDate;
-                                                }
                                                 _dbContext.Entry(oldItem).CurrentValues.SetValues(item);
 
                                                 // remove the item from the map. this will allow us to determine which ones need to be deleted below
@@ -782,14 +793,16 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                     // if we are not in a Transaction (the UnitOfWork will take care of triggering the save when the Transaction is complete) and changes were made, save said changes.
                     if (!InTransaction && dbEntry?.State == EntityState.Modified)
                     {
-                        entityInRepository.IsValid = SaveChanges();
+                        var result = SaveChanges();
+                        entityInRepository.IsValid = result.Succeeded;
                     }
                 }
                 catch (Exception ex)
                 {
+                    entityInRepository.IsValid = false;
                     if (!InTransaction)
                     {
-                        Logger.LogError(ex, "Error in EFRepository.Update"); 
+                        Logger.LogError(ex, "Error in BaseEFRepository.Update"); 
                     }
                 }
             }
@@ -829,13 +842,14 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                 // if we are not in a Transaction (the UnitOfWork will take care of triggering the save when the Transaction is complete) and changes were made, save said changes.
                 if (!InTransaction)
                 {
-                    successful = SaveChanges();
+                    var result = SaveChanges();
+                    successful = result.Succeeded;
                 }
             }
             catch (Exception ex)
             {
                 // log the exception
-                Logger.LogError(ex, "Error in EFRepository.UpdateRange");
+                Logger.LogError(ex, "Error in BaseEFRepository.UpdateRange");
                 successful = false;
             }
 
@@ -854,7 +868,8 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                 _dbContext.Set<T>().Remove(entity);
                 if (!InTransaction)
                 {
-                    return SaveChanges();
+                    var result = SaveChanges();
+                    return result.Succeeded;
                 }
                 return true;
             }
@@ -863,7 +878,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                 // log this
                 if (!InTransaction)
                 {
-                    Logger.LogError(ex, "Error in EFRepository.Delete"); 
+                    Logger.LogError(ex, "Error in BaseEFRepository.Delete"); 
                 }
                 return false;
             }
@@ -880,11 +895,16 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             try
             {
                 _dbContext.Set<T>().RemoveRange(models.ToArray());
+                if (!InTransaction)
+                {
+                    var result = SaveChanges();
+                    return result.Succeeded;
+                }
             }
             catch (Exception ex)
             {
                 // TODO: log the exception
-                Logger.LogError(ex, "Error in EFRepository.DeleteRange");
+                Logger.LogError(ex, "Error in BaseEFRepository.DeleteRange");
                 successful = false;
             }
 
@@ -917,7 +937,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
         }
 
         private bool disposed = false;
-        public void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!this.disposed)
             {
@@ -935,84 +955,46 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             GC.SuppressFinalize(this);
         }
 
-        public bool SaveChanges(bool inTransaction = false)
+        /// <summary>
+        /// This function performs the saving of the data to the underlying data store
+        /// </summary>
+        /// <param name="inTransaction"></param>
+        /// <returns>IDatabaseActionResult</returns>
+        /// <remarks>NOTE: this function should never be called from the Add, Updated, or Delete functions IF the repository is part of a Transaction</remarks>
+        public virtual IDatabaseActionResult SaveChanges()
         {
-            bool saveSuccessful = false;
+            DatabaseActionResult result = new() { Succeeded = true };
             try
             {
-                DateTime now = DateTime.Now;
+                RepositoryPreSaveEventArgs<T> args = null;
                 IEnumerable<EntityEntry> changes = _dbContext.ChangeTracker.Entries();
                 foreach (EntityEntry entityEntry in changes)
                 {
-                    if (entityEntry.Entity is IAuditableFull)
+                    args = SignalPreSaveEventHandlers(entityEntry as T);
+                    if (args.CancelSave)
                     {
-
-                        if (entityEntry.State == EntityState.Added)
-                        {
-                            entityEntry.CurrentValues[Constants.AUDIT_COLUMNS_CREATED_DATE] = now;
-                            entityEntry.CurrentValues[Constants.AUDIT_COLUMNS_CREATED_BY_USER] = Principal == null ? Constants.GENERIC_SYSTEM_USER_NAME : Principal.Identity.Name;
-                            entityEntry.CurrentValues[Constants.AUDIT_COLUMNS_UPDATED_DATE] = now;
-                            entityEntry.CurrentValues[Constants.AUDIT_COLUMNS_UPDATED_BY_USER] = Principal == null ? Constants.GENERIC_SYSTEM_USER_NAME : Principal.Identity.Name;
-                        }
-                        else if(entityEntry.State == EntityState.Modified)
-                        {
-                            entityEntry.CurrentValues[Constants.AUDIT_COLUMNS_UPDATED_DATE] = now;
-                            entityEntry.CurrentValues[Constants.AUDIT_COLUMNS_UPDATED_BY_USER] = Principal == null ? Constants.GENERIC_SYSTEM_USER_NAME : Principal.Identity.Name;
-                        }
-                    }
-
-                    if(entityEntry is IAuditableAddDate)
-                    {
-                        if (entityEntry.State == EntityState.Added)
-                        {
-                            entityEntry.CurrentValues[Constants.AUDIT_COLUMNS_CREATED_DATE] = now;
-                        }
-                    }
-                }
-
-                if (!inTransaction)
-                {
-                    int saveResult = _dbContext.SaveChanges();
-
-                    if (saveResult > 0)
-                    {
-                        saveSuccessful = true;
+                        result.Succeeded = false;
                     } 
                 }
+
+                if (result.Succeeded)
+                {
+                    result = _dbContext.Save() as DatabaseActionResult;
+                    SignalSaveEventHandlers(result.Succeeded);
+                }
             }
-            catch (ObjectDisposedException exObjDisposed)
+            catch (Exception ex)
             {
-                Logger.LogError(exObjDisposed, "Error in EFRepository.SaveChanges");
-                ExceptionDispatchInfo.Capture(exObjDisposed).Throw();
-            }
-            catch (InvalidOperationException exInvalidOp)
-            {
-                Logger.LogError(exInvalidOp, "Error in EFRepository.SaveChanges");
-                ExceptionDispatchInfo.Capture(exInvalidOp).Throw();
-            }
-            catch (DbUpdateConcurrencyException exConcurrency)
-            {
-                // TODO: determine the procedure for handling concurrency exceptions.
-                Logger.LogError(exConcurrency, "Error in EFRepository.SaveChanges");
-                ExceptionDispatchInfo.Capture(exConcurrency).Throw();
-            }
-            catch (NotSupportedException exNotSupported)
-            {
-                Logger.LogError(exNotSupported, "Error in EFRepository.SaveChanges");
-                ExceptionDispatchInfo.Capture(exNotSupported).Throw();
-            }
-            catch (DbUpdateException ex)
-            {
-                Logger.LogError(ex, "Error in EFRepository.SaveChanges");
-                ExceptionDispatchInfo.Capture(ex).Throw();
+                Logger.LogError(ex, "Error in BaseEFRepository.SaveChanges");
+                result.Exception = ex;
             }
 
-            return saveSuccessful;
+            return result;
         }
 
-        public RepositoryPreSaveEventArgs SignalPreSaveEventHandlers()
+        public RepositoryPreSaveEventArgs<T> SignalPreSaveEventHandlers(T model)
         {
-            RepositoryPreSaveEventArgs e = new RepositoryPreSaveEventArgs();
+            RepositoryPreSaveEventArgs<T> e = new RepositoryPreSaveEventArgs<T>(model);
             OnRaisePreSaveEvent(e);
             return e;
         }

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <AssemblyName>SolarFlareSoftware.Fw1.Core</AssemblyName>
     <RootNamespace>SolarFlareSoftware.Fw1.Core</RootNamespace>
@@ -12,8 +12,20 @@
     <RepositoryUrl>https://github.com/SolarFlareSoftware/SolarFlareSoftware.Frameworks</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>.NET;.NET Core;MVC</PackageTags>
-    <Description>This is the core library for the Solar Flare Software Fw1 modular framework</Description>
+    <Description>This is the core package for the Solar Flare Software FrameworkOne modular framework</Description>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
+    <Authors>SolarFlareSoftware</Authors>
+    <Version>1.0.6</Version>
+    <PackageLicenseFile>License.txt</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="nuget.config" />
+    <None Remove="nuget.config.OLD" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<None Include="License.txt" Pack="true" PackagePath="" />
+  </ItemGroup>
 </Project>

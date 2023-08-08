@@ -1,4 +1,5 @@
 ﻿using SolarFlareSoftware.Fw1.Core.Interfaces;
+using System;
 using System.Linq.Expressions;
 
 namespace SolarFlareSoftware.Fw1.Core.Specifications

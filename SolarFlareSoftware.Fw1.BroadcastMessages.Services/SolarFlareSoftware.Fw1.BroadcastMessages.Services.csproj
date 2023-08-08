@@ -2,8 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
+    <Authors>Solar Flare Software, Inc.</Authors>
+    <Copyright>© 2022, 2023 Solar Flare Software, Inc.</Copyright>
+    <Description>A library used </Description>
+    <RepositoryUrl>https://github.com/SolarFlareSoftware/SolarFlareSoftware.Frameworks</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>.NET;.NET Core;MVC</PackageTags>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>

@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SolarFlareSoftware.Fw1.Repo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SolarFlareSoftware.Fw1.Services.Core", "SolarFlareSoftware.Fw1.Services.Core\SolarFlareSoftware.Fw1.Services.Core.csproj", "{CE86F159-A4FB-484A-B8A6-D5A725565BA5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SolarFlareSoftware.Fw1.BroadcastMessages.Services", "SolarFlareSoftware.Fw1.BroadcastMessages.Services\SolarFlareSoftware.Fw1.BroadcastMessages.Services.csproj", "{694E7761-CD74-4F09-B4CF-469B14C99F24}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F0E974AE-7BA4-42AE-9680-68D3DC907580}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +29,6 @@ Global
 		{CE86F159-A4FB-484A-B8A6-D5A725565BA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CE86F159-A4FB-484A-B8A6-D5A725565BA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CE86F159-A4FB-484A-B8A6-D5A725565BA5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{694E7761-CD74-4F09-B4CF-469B14C99F24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{694E7761-CD74-4F09-B4CF-469B14C99F24}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{694E7761-CD74-4F09-B4CF-469B14C99F24}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{694E7761-CD74-4F09-B4CF-469B14C99F24}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

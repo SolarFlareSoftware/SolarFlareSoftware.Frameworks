@@ -1,12 +1,15 @@
 ﻿using SolarFlareSoftware.Fw1.Core.Events;
 using SolarFlareSoftware.Fw1.Core.Models;
 using SolarFlareSoftware.Fw1.Core.Specifications;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SolarFlareSoftware.Fw1.Core.Interfaces
 {
-    public interface IRepository<T> : IBaseRepository where T : IBaseModel 
+    public interface IRepository<T> : IBaseModelRepository<T> where T : IBaseModel 
     {
-        public event EventHandler<RepositoryPreSaveEventArgs> RepositoryPreSaveEvent;
+        public event EventHandler<RepositoryPreSaveEventArgs<T>> RepositoryPreSaveEvent;
         public event EventHandler<RepositorySaveEventArgs> RepositorySaveEvent;
 
         T GetItemWithSpecification(ISpecification<T> spec);
@@ -24,6 +27,7 @@ namespace SolarFlareSoftware.Fw1.Core.Interfaces
 
         List<T> GetAll();
         List<T> GetAllWithSpecification(ISpecification<T> spec);
+        BaseModelPagedList<T> GetAllWithSpecification(ISpecification<T> spec, int page = 0, int pageSize = 0);
 
         BaseModelPagedList<T> GetAllWithSortOrders(List<SpecificationSortOrder<T>> sortOrders, int page = 0, int pageSize = 0);
 

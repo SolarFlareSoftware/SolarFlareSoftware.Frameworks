@@ -1,5 +1,7 @@
 ﻿using Microsoft.Win32.SafeHandles;
 using SolarFlareSoftware.Fw1.Core.ServiceInterfaces;
+using System;
+using System.IO;
 using System.Runtime.InteropServices;
 
 namespace SolarFlareSoftware.Fw1.Services.Core

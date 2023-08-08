@@ -1,4 +1,6 @@
-﻿namespace SolarFlareSoftware.Fw1.Core
+﻿using System;
+
+namespace SolarFlareSoftware.Fw1.Core
 {
     public class EntityNotFoundInRepositoryException : Exception
     {
