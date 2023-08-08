@@ -38,7 +38,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
         /// </summary>
         /// <param name="dbContext">An instance of IDatabaseContext, specifically an SERContext instance (the BaseEFRepository is Entity Framework Specific, and SERContext is, too.</param>
         /// <param name="inTransaction">a bool indicating if this repository is part of a transaction. If not, the add and update methods will be atomic, performing a Save after changes made to the repository contents.</param>
-        public BaseEFRepository(IDatabaseContext dbContext, IPrincipal principal, IModelValidator<T> validator, ILogger<IRepository<T>> logger, bool inTransaction = false)
+        public BaseEFRepository(IDatabaseContext dbContext, IPrincipal principal, ILogger<IRepository<T>> logger, IModelValidator<T> validator = null, bool inTransaction = false)
         {
             _dbContext = (BaseEFContext)dbContext;
             Validator = validator;
