@@ -4,6 +4,7 @@ using SolarFlareSoftware.Fw1.Core.Specifications;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SolarFlareSoftware.Fw1.Core.Interfaces
 {
@@ -35,7 +36,11 @@ namespace SolarFlareSoftware.Fw1.Core.Interfaces
 
         BaseModelPagedList<T> GetPagedList(List<SpecificationSortOrder<T>> sortOrders = null, int page = 0, int pageSize = 0);
 
-        public List<T> GetListFromSql(string sql, params QueryParameter[] args);
+        List<T> GetListFromSql(string sql, params QueryParameter[] args);
+
+        T GetItemFromSql(string sql, params QueryParameter[] args);
+
+        Task<int> ExecuteStoredProcedure(string spName, params QueryParameter[] args);
 
         T Add(T model);
 
