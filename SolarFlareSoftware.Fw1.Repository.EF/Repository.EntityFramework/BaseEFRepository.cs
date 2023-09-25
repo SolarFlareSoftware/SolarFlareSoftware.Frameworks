@@ -693,7 +693,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                 }
             }
 
-            model = (T)_dbContext.Set<T>().FromSqlRaw(sql).Take(1);
+            model = (T)_dbContext.Set<T>().FromSqlRaw(sql).Take(1).FirstOrDefault();
 
             return model;
         }
