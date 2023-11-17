@@ -357,6 +357,11 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             return depl;
         }
 
+        public virtual T GetFirst()
+        {
+            return _dbContext.Set<T>().First();
+        }
+
         /// <summary>
         /// this method will build the query using a combination of the Includes and NavigationPropertyIncludes, depending upon their existence, and return the first result.
         /// </summary>
@@ -810,8 +815,19 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                 return entityIn;
             }
 
-            int entityPrimaryKeyValue = GetKeyValueFromEntity(entityIn);
-            T entityInRepository = _dbContext.Set<T>().Find(entityPrimaryKeyValue);
+            T entityInRepository;
+            try
+            {
+                int entityPrimaryKeyValue = GetKeyValueFromEntity(entityIn);
+                entityInRepository = _dbContext.Set<T>().Find(entityPrimaryKeyValue);
+            }
+            catch (Exception ex)
+            {
+                Guid guidPrimaryKeyValue = GetGuidKeyValueFromEntity(entityIn);
+                entityInRepository = _dbContext.Set<T>().Find(guidPrimaryKeyValue);
+
+            }
+
             if (entityInRepository == null)
             {
                 var ex = new EntityNotFoundInRepositoryException(typeof(T).ToString());
@@ -1040,12 +1056,26 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
         /// Called to obtain the key value from the entity provided
         /// </summary>
         /// <param name="entity">a BaseModel of type T</param>
-        /// <returns>an integer value that is the primary key for the object passed as an argument</returns>
+        /// <returns>an integer value that is the primary key for the object passed as an argument IF the table has a primary key that is type int</returns>
+        /// <exception cref="InvalidCastException">Throws an InvalidCastException if the table's primary key is not an int</exception>
         protected int GetKeyValueFromEntity(T entity)
         {
             string keyName = _dbContext.Model.FindEntityType(typeof(T)).FindPrimaryKey().Properties.Select(x => x.Name).Single();
 
             return (int)entity.GetType().GetProperty(keyName).GetValue(entity, null);
+        }
+
+        /// <summary>
+        /// Called to obtain the key value from the entity provided
+        /// </summary>
+        /// <param name="entity">a BaseModel of type T</param>
+        /// <returns>an integer value that is the primary key for the object passed as an argument IF the table has a primary key that is type Guid</returns>
+        /// <exception cref="InvalidCastException">Throws an InvalidCastException if the table's primary key is not a Guid</exception>
+        protected Guid GetGuidKeyValueFromEntity(T entity)
+        {
+            string keyName = _dbContext.Model.FindEntityType(typeof(T)).FindPrimaryKey().Properties.Select(x => x.Name).Single();
+
+            return (Guid)entity.GetType().GetProperty(keyName).GetValue(entity, null);
         }
 
         protected int GetKeyValueFromEntityForCollectionProcessing(object entity)
