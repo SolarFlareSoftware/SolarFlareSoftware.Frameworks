@@ -23,6 +23,10 @@ namespace SolarFlareSoftware.Fw1.Core.Specifications
             _specifications.Add(right);
         }
 
+        /// <summary>
+        /// Obtains an Expression that represents the the compound requirements of the underlying Specifications 
+        /// </summary>
+        /// <returns>Expression<Func<T, bool>></returns>
         public override Expression<Func<T, bool>> ToExpression()
         {
             ParameterExpression param = System.Linq.Expressions.Expression.Parameter(typeof(T), "s");
@@ -34,10 +38,42 @@ namespace SolarFlareSoftware.Fw1.Core.Specifications
             return System.Linq.Expressions.Expression.Lambda<Func<T, bool>>(body, param);
         }
 
+        /// <summary>
+        /// Use this function to determine if the requirements of the compound "And" Specification are satisfied. NOTE: if the individual Specifications that were Anded herein 
+        /// have both defined a SpecificationErrorMessage, this And Specification will indicate which of the conditions failed.
+        /// </summary>
+        /// <param name="entity">the object to be tested to see if it satisfies the Specifications validations/requirements</param>
+        /// <returns>true if conditions are met, false if not</returns>
         public override bool IsSatisfiedBy(T entity)
         {
-            return _specifications[0].IsSatisfiedBy(entity)
-            && _specifications[1].IsSatisfiedBy(entity);
+            bool s1IsSatisfiedBy = _specifications[0].IsSatisfiedBy(entity);
+            bool s2IsSatisfiedBy = _specifications[1].IsSatisfiedBy(entity);
+
+            string tmpErrorMessage = "";
+
+            // only build an error message for this test if an overarching error message has not already been defined by the system
+            if (this.SpecificationErrorMessage.Length == 0)
+            {
+                if (!s1IsSatisfiedBy && _specifications[0].SpecificationErrorMessage.Length > 0)
+                {
+                    tmpErrorMessage = _specifications[0].SpecificationErrorMessage;
+                }
+                if (!s2IsSatisfiedBy && _specifications[1].SpecificationErrorMessage.Length > 0)
+                {
+                    if (tmpErrorMessage.Length > 0)
+                    {
+                        tmpErrorMessage += " and ";
+                    }
+
+                    tmpErrorMessage += _specifications[1].SpecificationErrorMessage;
+                }
+                if (tmpErrorMessage.Length > 0)
+                {
+                    this.SpecificationErrorMessage = $"Condition(s) not satisfied: {tmpErrorMessage}";
+                } 
+            }
+
+            return s1IsSatisfiedBy && s2IsSatisfiedBy;
         }
     }
 }

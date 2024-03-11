@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Logging;
@@ -12,12 +13,15 @@ using SolarFlareSoftware.Fw1.Repository.EF.Context;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Security.Claims;
 using System.Security.Principal;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace SolarFlareSoftware.Fw1.Repository.EF
 {
@@ -353,6 +357,11 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             return depl;
         }
 
+        public virtual T GetFirst()
+        {
+            return _dbContext.Set<T>().First();
+        }
+
         /// <summary>
         /// this method will build the query using a combination of the Includes and NavigationPropertyIncludes, depending upon their existence, and return the first result.
         /// </summary>
@@ -550,6 +559,92 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             return depl;
         }
 
+        public virtual async Task<int> ExecuteStoredProcedure(string spName, params QueryParameter[] args)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(spName).Append(" ");
+
+            SqlParameter[] parameters = null;
+            if (args != null && args.Length != 0)
+            {
+                parameters = new SqlParameter[args.Length];
+            }
+
+            if (args?.Length > 0)
+            {
+                int pos = 0;
+                foreach (QueryParameter arg in args)
+                {
+                    if (pos != 0)
+                    {
+                        sb.Append(",");
+                    }
+                    sb.Append(arg.ParamName);
+                    SqlParameter parameter = new SqlParameter()
+                    {
+                        ParameterName = arg.ParamName,
+                        SqlDbType = MapParamTypeToDbType(arg.ParamType),
+                        Size = arg.ParamLength,
+                        Direction = System.Data.ParameterDirection.Input,
+                        Value = arg.ParamValue
+                    };
+                    parameters![pos] = parameter;
+
+                    pos++;
+                }
+            }
+
+            string spStmt = sb.ToString();
+            int rowsAffected = 0;
+            if (parameters == null)
+            {
+                try
+                {
+                    rowsAffected = await ((DbContext)_dbContext).Database.ExecuteSqlRawAsync(sb.ToString());
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, $"Exception in ExecuteStoredProcedure {spName}");
+                    rowsAffected = -1;
+                }
+            }
+            else
+            {
+                try
+                {
+                    rowsAffected = await ((DbContext)_dbContext).Database.ExecuteSqlRawAsync(spStmt, parameters);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, $"Exception in ExecuteStoredProcedure {spName}");
+                    rowsAffected = -1;
+                }
+            }
+
+            return rowsAffected;
+        }
+
+        private SqlDbType MapParamTypeToDbType(QueryParameterTypeEnum qpType)
+        {
+            SqlDbType dbType = SqlDbType.VarChar;
+
+            switch (qpType)
+            {
+                case QueryParameterTypeEnum.number:
+                    {
+                        dbType = SqlDbType.Int;
+                        break;
+                    }
+                case QueryParameterTypeEnum.varchar:
+                    {
+                        dbType = SqlDbType.VarChar;
+                        break;
+                    }
+            }
+
+            return dbType;
+        }
+
         public virtual List<T> GetListFromSql(string sql, params QueryParameter[] args)
         {
             List<T> resultList = null;
@@ -579,6 +674,35 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             return resultList;
         }
 
+        public virtual T GetItemFromSql(string sql, params QueryParameter[] args)
+        {
+            T model = null;
+            if (args?.Length > 0)
+            {
+                int pos = 0;
+                foreach (QueryParameter arg in args)
+                {
+                    if (pos != 0)
+                    {
+                        sql += ",";
+                    }
+                    if (arg.ParamType == QueryParameterTypeEnum.varchar || arg.ParamType == QueryParameterTypeEnum.date)
+                    {
+                        sql += String.Format(" {0} = \"{1}\"", arg.ParamName, arg.ParamValue);
+                    }
+                    else
+                    {
+                        sql += String.Format(" {0} = {1}", arg.ParamName, arg.ParamValue);
+                    }
+                    pos++;
+                }
+            }
+
+            model = (T)_dbContext.Set<T>().FromSqlRaw(sql).AsEnumerable().Take(1).FirstOrDefault();
+
+            return model;
+        }
+
         private T PreActionValidation(T entity)
         {
             if(Validator == null)
@@ -594,6 +718,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             }
             return entity;
         }
+
         /// <summary>
         /// Adds an entity of type T to the DbContext
         /// </summary>
@@ -690,8 +815,19 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                 return entityIn;
             }
 
-            int entityPrimaryKeyValue = GetKeyValueFromEntity(entityIn);
-            T entityInRepository = _dbContext.Set<T>().Find(entityPrimaryKeyValue);
+            T entityInRepository;
+            try
+            {
+                int entityPrimaryKeyValue = GetKeyValueFromEntity(entityIn);
+                entityInRepository = _dbContext.Set<T>().Find(entityPrimaryKeyValue);
+            }
+            catch (Exception ex)
+            {
+                Guid guidPrimaryKeyValue = GetGuidKeyValueFromEntity(entityIn);
+                entityInRepository = _dbContext.Set<T>().Find(guidPrimaryKeyValue);
+
+            }
+
             if (entityInRepository == null)
             {
                 var ex = new EntityNotFoundInRepositoryException(typeof(T).ToString());
@@ -920,12 +1056,26 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
         /// Called to obtain the key value from the entity provided
         /// </summary>
         /// <param name="entity">a BaseModel of type T</param>
-        /// <returns>an integer value that is the primary key for the object passed as an argument</returns>
+        /// <returns>an integer value that is the primary key for the object passed as an argument IF the table has a primary key that is type int</returns>
+        /// <exception cref="InvalidCastException">Throws an InvalidCastException if the table's primary key is not an int</exception>
         protected int GetKeyValueFromEntity(T entity)
         {
             string keyName = _dbContext.Model.FindEntityType(typeof(T)).FindPrimaryKey().Properties.Select(x => x.Name).Single();
 
             return (int)entity.GetType().GetProperty(keyName).GetValue(entity, null);
+        }
+
+        /// <summary>
+        /// Called to obtain the key value from the entity provided
+        /// </summary>
+        /// <param name="entity">a BaseModel of type T</param>
+        /// <returns>an integer value that is the primary key for the object passed as an argument IF the table has a primary key that is type Guid</returns>
+        /// <exception cref="InvalidCastException">Throws an InvalidCastException if the table's primary key is not a Guid</exception>
+        protected Guid GetGuidKeyValueFromEntity(T entity)
+        {
+            string keyName = _dbContext.Model.FindEntityType(typeof(T)).FindPrimaryKey().Properties.Select(x => x.Name).Single();
+
+            return (Guid)entity.GetType().GetProperty(keyName).GetValue(entity, null);
         }
 
         protected int GetKeyValueFromEntityForCollectionProcessing(object entity)

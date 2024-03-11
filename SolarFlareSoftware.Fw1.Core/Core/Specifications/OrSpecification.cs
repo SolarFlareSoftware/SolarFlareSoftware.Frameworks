@@ -33,5 +33,30 @@ namespace SolarFlareSoftware.Fw1.Core.Specifications
             return System.Linq.Expressions.Expression.Lambda<Func<T, bool>>(body, param);
 
         }
+
+        public override bool IsSatisfiedBy(T entity)
+        {
+            bool s1IsSatisfiedBy = _specifications[0].IsSatisfiedBy(entity);
+            bool s2IsSatisfiedBy = _specifications[1].IsSatisfiedBy(entity);
+
+            string tmpErrorMessage = "";
+
+            // only build an error message for this test if an overarching error message has not already been defined by the system
+            if (this.SpecificationErrorMessage.Length == 0)
+            {
+                if (!s1IsSatisfiedBy && !s2IsSatisfiedBy)
+                {
+                    if (_specifications[0].SpecificationErrorMessage.Length > 0 && _specifications[1].SpecificationErrorMessage.Length > 0)
+                        tmpErrorMessage = $"{_specifications[0].SpecificationErrorMessage} or {_specifications[1].SpecificationErrorMessage}";
+                }
+
+                if (tmpErrorMessage.Length > 0)
+                {
+                    this.SpecificationErrorMessage = $"Condition not satisfied: {tmpErrorMessage}";
+                } 
+            }
+
+            return s1IsSatisfiedBy && s2IsSatisfiedBy;
+        }
     }
 }
