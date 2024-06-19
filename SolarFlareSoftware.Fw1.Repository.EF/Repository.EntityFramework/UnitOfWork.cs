@@ -9,7 +9,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
     {
         protected bool _inTransaction = false;
         private List<IBaseRepository> EnlistedRepositories { get; set; }
-        private ILogger Logger { get; set; }
+        private ILogger? Logger { get; set; }
 
         public UnitOfWork(ILogger<UnitOfWork> logger)
         {
@@ -102,7 +102,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
 
             if(saveFailed)
             {
-                Logger.LogError(string.Format("Error in UnitOfWork.Complete involving a {0} record", modelType));
+                Logger?.LogError(string.Format("Error in UnitOfWork.Complete involving a {0} record", modelType));
             }
             else
             {
@@ -126,7 +126,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                             }
                             catch (Exception ex)
                             {
-                                Logger.LogError(ex, string.Format("Error in UnitOfWork.Complete trying to commit the transaction related to a {0} record)", modelType));
+                                Logger?.LogError(ex, string.Format("Error in UnitOfWork.Complete trying to commit the transaction related to a {0} record)", modelType));
                                 committed = false;
                                 throw;
                             }
@@ -158,31 +158,12 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                     }
                     catch (Exception ex)
                     {
-                        Logger.LogError(ex, string.Format("Error in UnitOfWork.Rollback trying to rollback the transaction involving a {0} record)", modelType));
+                        Logger?.LogError(ex, string.Format("Error in UnitOfWork.Rollback trying to rollback the transaction involving a {0} record)", modelType));
                         throw;
                     }
                 }
             }
         }
-
-        //private bool Save(IDatabaseContext context)
-        //{
-        //    bool saveSuccessful = false;
-        //    string modelType = string.Empty;
-
-        //    try
-        //    {
-        //        // the IDatabaseContext object will return a true if the save was successful, false if not.
-        //        var result = context.Save();
-        //        saveSuccessful = result.Succeeded;
-        //    }
-        //    catch (Exception)
-        //    {
-        //        // don't log (EFContext already did. just avoid blowing up.
-        //    }
-
-        //    return saveSuccessful;
-        //}
 
         //private bool disposed = false;
 

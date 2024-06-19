@@ -48,7 +48,7 @@ namespace SolarFlareSoftware.Fw1.Services.Core
 
         public abstract T GetById(int id);
 
-        public virtual T GetBySpecification(ISpecification<T> spec)
+        public virtual T? GetBySpecification(ISpecification<T> spec)
         {
             return Repository.GetItemWithSpecification(spec);
         }
@@ -63,7 +63,7 @@ namespace SolarFlareSoftware.Fw1.Services.Core
             return Repository.Update(entity);
         }
 
-        public virtual IBaseModelPagedList<T> GetPagedList(List<SpecificationSortOrder<T>> sortOrders = null, int page = 1, int pageSize = 10)
+        public virtual IBaseModelPagedList<T> GetPagedList(List<SpecificationSortOrder<T>>? sortOrders = null, int page = 1, int pageSize = 10)
         {
             return Repository.GetPagedList(sortOrders, page, pageSize);
         }

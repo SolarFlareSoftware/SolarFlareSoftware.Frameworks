@@ -16,7 +16,7 @@ namespace SolarFlareSoftware.Fw1.Core.Interfaces
         public bool DeleteById(int id);
         public abstract T GetById(Guid id);
         public abstract T GetById(int id);
-        public T GetBySpecification(ISpecification<T> spec);
+        public T? GetBySpecification(ISpecification<T> spec);
         public IBaseModelPagedList<T> GetPagedList(List<SpecificationSortOrder<T>>? sortOrders = null, int page=1, int pageSize=10);
         public IBaseModelPagedList<T> GetPagedList(ISpecification<T> spec, int page = 1, int pageSize = 10);
         public ICollection<T> GetAll();

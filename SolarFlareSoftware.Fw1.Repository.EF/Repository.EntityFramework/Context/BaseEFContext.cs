@@ -19,17 +19,17 @@ namespace SolarFlareSoftware.Fw1.Repository.EF.Context
         {
             get { return this.ContextId.ToString(); }
         }
-        public IDbContextTransaction Transaction { get; set; } = null;
-        public ILogger<IDatabaseContext> Logger { get; set; }
+        public IDbContextTransaction? Transaction { get; set; } = null;
+        public ILogger<IDatabaseContext>? Logger { get; set; }
         public IPrincipal Principal { get; set; }
 
-        public BaseEFContext(IPrincipal principal, ILogger<IDatabaseContext> logger) 
+        public BaseEFContext(IPrincipal principal, ILogger<IDatabaseContext>? logger) 
         {
             Principal = principal;
             Logger = logger;
         }
 
-        protected BaseEFContext(DbContextOptions options, IPrincipal principal, ILogger<IDatabaseContext> logger) : base(options)
+        protected BaseEFContext(DbContextOptions options, IPrincipal principal, ILogger<IDatabaseContext>? logger) : base(options)
         {
             Principal = principal;
             Logger = logger;
@@ -87,7 +87,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF.Context
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Error in BaseEFContext.Save");
+                Logger?.LogError(ex, "Error in BaseEFContext.Save");
                 result.Exception = ex;
             }
 

@@ -29,20 +29,20 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
     {
         protected readonly BaseEFContext _dbContext;
         public bool InTransaction { get; set; }
-        public IDatabaseContext DatabaseContext { get { return _dbContext; } }
-        protected IModelValidator<T> Validator { get; set; }
+        public IDatabaseContext? DatabaseContext { get { return _dbContext; } }
+        protected IModelValidator<T>? Validator { get; set; }
         protected IPrincipal Principal { get; set; }
-        public event EventHandler<RepositoryPreSaveEventArgs<T>> RepositoryPreSaveEvent;
-        public event EventHandler<RepositorySaveEventArgs> RepositorySaveEvent;
+        public event EventHandler<RepositoryPreSaveEventArgs<T>>? RepositoryPreSaveEvent;
+        public event EventHandler<RepositorySaveEventArgs>? RepositorySaveEvent;
 
-        protected ILogger<IRepository<T>> Logger { get; set; }
+        protected ILogger<IRepository<T>>? Logger { get; set; }
 
         /// <summary>
         /// We DI the database context and an indicator of whether or not it is part of a Transaction. 
         /// </summary>
         /// <param name="dbContext">An instance of IDatabaseContext, specifically an SERContext instance (the BaseEFRepository is Entity Framework Specific, and SERContext is, too.</param>
         /// <param name="inTransaction">a bool indicating if this repository is part of a transaction. If not, the add and update methods will be atomic, performing a Save after changes made to the repository contents.</param>
-        public BaseEFRepository(IDatabaseContext dbContext, IPrincipal principal, ILogger<IRepository<T>> logger, IModelValidator<T> validator = null, bool inTransaction = false)
+        public BaseEFRepository(IDatabaseContext dbContext, IPrincipal principal, ILogger<IRepository<T>>? logger, IModelValidator<T>? validator = null, bool inTransaction = false)
         {
             _dbContext = (BaseEFContext)dbContext;
             Validator = validator;
@@ -58,7 +58,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
         protected virtual void OnRaisePreSaveEvent(RepositoryPreSaveEventArgs<T> e)
         {
             // this is a safety check to deal with potential unsubscribes happening at an innopportune time
-            EventHandler<RepositoryPreSaveEventArgs<T>> preSaveEvent = RepositoryPreSaveEvent;
+            EventHandler<RepositoryPreSaveEventArgs<T>> preSaveEvent = RepositoryPreSaveEvent!;
             if (preSaveEvent != null)
             {
                 preSaveEvent(this, e);
@@ -68,7 +68,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
         protected virtual void OnRaiseSaveEvent(RepositorySaveEventArgs e)
         {
             // this is a safety check to deal with potential unsubscribes happening at an innopportune time
-            EventHandler<RepositorySaveEventArgs> saveEvent = RepositorySaveEvent;
+            EventHandler<RepositorySaveEventArgs> saveEvent = RepositorySaveEvent!;
             if (saveEvent != null)
             {
                 saveEvent(this, e);
@@ -192,7 +192,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                     query = spec.NavigationPropertyIncludes.Aggregate(query.Where(spec.ToExpression()), (current, include) => current.Include(include)); 
                 }
             }
-            IQueryable<IProjectedModel> amQuery = null;
+            IQueryable<IProjectedModel>? amQuery = null;
             if(spec.ToExpression() == null)
             {
                 amQuery = query.Select(projection.Projection);
@@ -261,7 +261,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                                                         .Single();
 
         // removes any type conversion operation from the provided Expression
-        private Expression RemoveConvert(Expression expression)
+        private Expression? RemoveConvert(Expression? expression)
         {
             System.Diagnostics.Debug.Assert(expression != null);
 
@@ -278,17 +278,17 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
         {
             //We need to convert the key selector from Expression<Func<T, object>> to a strongly typed Expression<Func<T, TKey>>
             //in order for Entity Framework to be able to translate it to SQL
-            MemberExpression orderByMemExp = RemoveConvert(sortExpression.OrderedProperty.Body) as MemberExpression;
+            MemberExpression? orderByMemExp = RemoveConvert(sortExpression.OrderedProperty.Body) as MemberExpression;
             ParameterExpression sourceParam = sortExpression.OrderedProperty.Parameters[0];
 
-            LambdaExpression orderByLamda = Expression.Lambda(orderByMemExp, new[] { sourceParam });
+            LambdaExpression orderByLamda = Expression.Lambda(orderByMemExp!, new[] { sourceParam });
 
             MethodInfo orderByMethod = sortExpression.DirectionIndicator == SortOrderDirectionEnum.descending ?
-                                            OrderByDescMethod.MakeGenericMethod(new[] { typeof(T), orderByMemExp.Type }) :
-                                            OrderByMethod.MakeGenericMethod(new[] { typeof(T), orderByMemExp.Type });
+                                            OrderByDescMethod.MakeGenericMethod(new[] { typeof(T), orderByMemExp!.Type }) :
+                                            OrderByMethod.MakeGenericMethod(new[] { typeof(T), orderByMemExp!.Type });
 
             //Call OrderBy or OrderByDescending on the source IQueryable<T>
-            return (IQueryable<T>)orderByMethod.Invoke(null, new object[] { source, orderByLamda });
+            return (IQueryable<T>)orderByMethod.Invoke(null, new object[] { source, orderByLamda })!;
         }
 
         // dynamically builds a ThenBy statement and adds it to the IQueryable{T} before returning that IQueryable{T}
@@ -296,17 +296,17 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
         {
             //We need to convert the key selector from Expression<Func<T, object>> to a strongly typed Expression<Func<T, TKey>>
             //in order for Entity Framework to be able to translate it to SQL
-            Expression orderByMemExp = RemoveConvert(sortExpression.OrderedProperty.Body) as MemberExpression;
+            Expression? orderByMemExp = RemoveConvert(sortExpression.OrderedProperty.Body) as MemberExpression;
             ParameterExpression sourceParam = sortExpression.OrderedProperty.Parameters[0];
 
-            LambdaExpression orderByLamda = Expression.Lambda(orderByMemExp, new[] { sourceParam });
+            LambdaExpression orderByLamda = Expression.Lambda(orderByMemExp!, new[] { sourceParam });
 
             MethodInfo orderByMethod = sortExpression.DirectionIndicator == SortOrderDirectionEnum.descending ?
-                                            ThenByDescMethod.MakeGenericMethod(new[] { typeof(T), orderByMemExp.Type }) :
-                                            ThenByMethod.MakeGenericMethod(new[] { typeof(T), orderByMemExp.Type });
+                                            ThenByDescMethod.MakeGenericMethod(new[] { typeof(T), orderByMemExp!.Type }) :
+                                            ThenByMethod.MakeGenericMethod(new[] { typeof(T), orderByMemExp!.Type });
 
             //Call OrderBy or OrderByDescending on the source IQueryable<T>
-            return (IQueryable<T>)orderByMethod.Invoke(null, new object[] { source, orderByLamda });
+            return (IQueryable<T>)orderByMethod.Invoke(null, new object[] { source, orderByLamda })!;
         }
         #endregion
 
@@ -426,20 +426,20 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
         /// </summary>
         /// <param name="spec">an <seealso cref="ISpecification{T}"/>ISpecification object</param>
         /// <returns>a single item of type T that matches the ISpecification passed in</returns>
-        public virtual T GetItemWithSpecification(ISpecification<T> spec)
+        public virtual T? GetItemWithSpecification(ISpecification<T> spec)
         {
             Validator?.SetDatabaseActionContext(Constants.DATABASE_ACTION_GET);
             IQueryable<T> query = _dbContext.Set<T>().AsQueryable();
             query = ExtendQueryWithAllIncludes(spec, query);
 
-            T itemToReturn;
+            T? itemToReturn;
             try
             {
                 itemToReturn = query.FirstOrDefault();
             }
             catch(Exception ex)
             {
-                Logger.LogError(ex, "An exception occured in GetItemWithSpecification...possibly null data in a property marked as not nullable in the model.");
+                Logger?.LogError(ex, "An exception occured in GetItemWithSpecification...possibly null data in a property marked as not nullable in the model.");
                 itemToReturn = null;
             }
             return itemToReturn;
@@ -466,11 +466,11 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             return query.Count();
         }
 
-        public virtual IProjectedModel GetProjectedItemWithSpecification(IProjection projection, ISpecification<T> spec)
+        public virtual IProjectedModel? GetProjectedItemWithSpecification(IProjection projection, ISpecification<T> spec)
         {
             IQueryable<T> query = _dbContext.Set<T>().AsQueryable();
 
-            IQueryable<IProjectedModel> projectedQuery = null;
+            IQueryable<IProjectedModel>? projectedQuery = null;
             projectedQuery = ExtendProjectedQueryWithAllIncludes(projection, spec, query);
 
             return projectedQuery.FirstOrDefault();
@@ -519,7 +519,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "An exception occured in GetListWithSpecification...possibly null data in a property marked as not nullable in the model.");
+                Logger?.LogError(ex, "An exception occured in GetListWithSpecification...possibly null data in a property marked as not nullable in the model.");
                 depl.EntityList = null;
             }
             return depl;
@@ -545,7 +545,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             return groupQuery.ToList();
         }
 
-        public virtual BaseModelPagedList<T> GetPagedList(List<SpecificationSortOrder<T>> sortOrderList = null, int page = 0, int pageSize = 0)
+        public virtual BaseModelPagedList<T> GetPagedList(List<SpecificationSortOrder<T>>? sortOrderList = null, int page = 0, int pageSize = 0)
         {
             Validator?.SetDatabaseActionContext(Constants.DATABASE_ACTION_GET);
             BaseModelPagedList<T> depl = new BaseModelPagedList<T>();
@@ -580,7 +580,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "An exception occured in GetPagedList.");
+                Logger?.LogError(ex, "An exception occured in GetPagedList.");
                 depl.EntityList = null;
             }
 
@@ -592,18 +592,19 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             Validator?.SetDatabaseActionContext(Constants.DATABASE_ACTION_GET);
             ProjectedModelPagedList depl = new ProjectedModelPagedList();
 
-            IQueryable<T> query = null;
+            IQueryable<T>? query = null;
             try
             {
                 query = _dbContext.Set<T>().AsQueryable();
             }
             catch(Exception ex)
             {
+                Logger?.LogError(ex, "Error in BaseEFRepository.GetProjectedListWithSpecification");
                 query = _dbContext.Set<T>(typeof(T).ToString()).AsQueryable();
             }
             query = AddSortOrdersToQuery(query, spec.SortOrderList);
 
-            IQueryable<IProjectedModel> projectedQuery = null;
+            IQueryable<IProjectedModel>? projectedQuery = null;
             projectedQuery = ExtendProjectedQueryWithAllIncludes(projection, spec, query);
 
             // only add the Skip and Take if both paging elements were provided
@@ -625,7 +626,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             IQueryable<T> query = _dbContext.Set<T>().AsQueryable();
             query = AddSortOrdersToQuery(query, spec.SortOrderList);
 
-            IQueryable<IProjectedModel> projectedQuery = null;
+            IQueryable<IProjectedModel>? projectedQuery = null;
             projectedQuery = ExtendProjectedQueryWithAllIncludes(projection, spec, query);
 
             depl.ModelList = projectedQuery.ToList();
@@ -637,7 +638,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             StringBuilder sb = new StringBuilder();
             sb.Append(spName).Append(" ");
 
-            SqlParameter[] parameters = null;
+            SqlParameter[]? parameters = null;
             if (args != null && args.Length != 0)
             {
                 parameters = new SqlParameter[args.Length];
@@ -677,7 +678,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError(ex, $"Exception in ExecuteStoredProcedure {spName}");
+                    Logger?.LogError(ex, $"Exception in ExecuteStoredProcedure {spName}");
                     rowsAffected = -1;
                 }
             }
@@ -689,7 +690,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError(ex, $"Exception in ExecuteStoredProcedure {spName}");
+                    Logger?.LogError(ex, $"Exception in ExecuteStoredProcedure {spName}");
                     rowsAffected = -1;
                 }
             }
@@ -718,10 +719,10 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             return dbType;
         }
 
-        public virtual List<T> GetListFromSql(string sql, params QueryParameter[] args)
+        public virtual List<T>? GetListFromSql(string sql, params QueryParameter[] args)
         {
             Validator?.SetDatabaseActionContext(Constants.DATABASE_ACTION_GET);
-            List<T> resultList = null;
+            List<T>? resultList = null;
             if (args?.Length > 0)
             {
                 int pos = 0;
@@ -748,9 +749,9 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             return resultList;
         }
 
-        public virtual T GetItemFromSql(string sql, params QueryParameter[] args)
+        public virtual T? GetItemFromSql(string sql, params QueryParameter[] args)
         {
-            T model = null;
+            T? model = null;
             if (args?.Length > 0)
             {
                 int pos = 0;
@@ -772,7 +773,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                 }
             }
 
-            model = (T)_dbContext.Set<T>().FromSqlRaw(sql).AsEnumerable().Take(1).FirstOrDefault();
+            model = (T?)_dbContext.Set<T>().FromSqlRaw(sql).AsEnumerable().Take(1).FirstOrDefault();
 
             return model;
         }
@@ -788,7 +789,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             if (!validationResults.IsValid)
             {
                 entity.IsValid = false;
-                entity.ValidationErrors = validationResults.ValidationErrors;
+                entity.ValidationErrors = validationResults.ValidationErrors!;
             }
             return entity;
         }
@@ -801,7 +802,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
         public virtual T Add(T entity)
         {
             Validator?.SetDatabaseActionContext(Constants.DATABASE_ACTION_ADD);
-            DatabaseActionResult result = null;
+            DatabaseActionResult? result = null;
             entity = PreActionValidation(entity);
             if (!entity.IsValid) {
                 return entity;
@@ -814,7 +815,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                 if (!InTransaction && newEntity?.State == EntityState.Added)
                 {
                     result = SaveChanges() as DatabaseActionResult;
-                    entity.IsValid = result.Succeeded;
+                    entity.IsValid = result!.Succeeded;
                 }
             }
             catch (Exception ex)
@@ -823,7 +824,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                 entity.ValidationErrors.Add("SaveError", "A critical error was encountered while attempting to save your data.");
                 if (!InTransaction)
                 {
-                    Logger.LogError(ex, "Error in BaseEFRepository.Add"); 
+                    Logger?.LogError(ex, "Error in BaseEFRepository.Add"); 
                 }
             }
             return entity;
@@ -863,13 +864,13 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                 if (!InTransaction)
                 {
                     var result = SaveChanges() as DatabaseActionResult;
-                    successful = result.Succeeded;
+                    successful = result!.Succeeded;
                 }
             }
             catch (Exception ex)
             {
                 // TODO: log the exception
-                Logger.LogError(ex, "Error in BaseEFRepository.AddRange");
+                Logger?.LogError(ex, "Error in BaseEFRepository.AddRange");
                 successful = false;
             }
 
@@ -892,7 +893,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                 return entityIn;
             }
 
-            T entityInRepository;
+            T? entityInRepository;
             try
             {
                 int entityPrimaryKeyValue = GetKeyValueFromEntity(entityIn);
@@ -900,6 +901,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             }
             catch (Exception ex)
             {
+                Logger?.LogError(ex, "Error in BaseEFRepository.Update");
                 Guid guidPrimaryKeyValue = GetGuidKeyValueFromEntity(entityIn);
                 entityInRepository = _dbContext.Set<T>().Find(guidPrimaryKeyValue);
 
@@ -908,7 +910,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             if (entityInRepository == null)
             {
                 var ex = new EntityNotFoundInRepositoryException(typeof(T).ToString());
-                Logger.LogError(ex, "Error in BaseEFRepository.Update");
+                Logger?.LogError(ex, "Error in BaseEFRepository.Update");
                 throw ex;
             }
             else
@@ -916,7 +918,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                 try
                 {
                     EntityEntry<T> dbEntry = _dbContext.Entry(entityInRepository);
-                    string entityPrimaryKeyName = _dbContext.Model.FindEntityType(typeof(T)).FindPrimaryKey().Properties.Select(x => x.Name).Single();
+                    string entityPrimaryKeyName = _dbContext.Model.FindEntityType(typeof(T))!.FindPrimaryKey()!.Properties.Select(x => x.Name).Single();
 
                     // get all of the object's properties
                     PropertyInfo[] sourceEntityProperties = entityIn.GetType().GetProperties();
@@ -1015,7 +1017,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                     entityInRepository.IsValid = false;
                     if (!InTransaction)
                     {
-                        Logger.LogError(ex, "Error in BaseEFRepository.Update"); 
+                        Logger?.LogError(ex, "Error in BaseEFRepository.Update"); 
                     }
                 }
             }
@@ -1063,7 +1065,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             catch (Exception ex)
             {
                 // log the exception
-                Logger.LogError(ex, "Error in BaseEFRepository.UpdateRange");
+                Logger?.LogError(ex, "Error in BaseEFRepository.UpdateRange");
                 successful = false;
             }
 
@@ -1093,7 +1095,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                 // log this
                 if (!InTransaction)
                 {
-                    Logger.LogError(ex, "Error in BaseEFRepository.Delete"); 
+                    Logger?.LogError(ex, "Error in BaseEFRepository.Delete"); 
                 }
                 return false;
             }
@@ -1120,7 +1122,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             catch (Exception ex)
             {
                 // TODO: log the exception
-                Logger.LogError(ex, "Error in BaseEFRepository.DeleteRange");
+                Logger?.LogError(ex, "Error in BaseEFRepository.DeleteRange");
                 successful = false;
             }
 
@@ -1215,7 +1217,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Error in BaseEFRepository.SaveChanges");
+                Logger?.LogError(ex, "Error in BaseEFRepository.SaveChanges");
                 result.Exception = ex;
             }
 
