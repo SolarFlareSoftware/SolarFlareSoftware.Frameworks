@@ -6,13 +6,13 @@
     <Nullable>disable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Company>Solar Flare Software, Inc.</Company>
-    <Copyright>© 2022, 2023 Solar Flare Software, Inc.</Copyright>
+    <Copyright>© 2024 Solar Flare Software, Inc.</Copyright>
     <RepositoryUrl>https://github.com/SolarFlareSoftware/SolarFlareSoftware.Frameworks</RepositoryUrl>
     <Description>An implementation of Solar Flare's FrameworkOne Repository and Unit of Work interfaces. Requires Entity Framework Core.</Description>
     <RepositoryType>git</RepositoryType>
     <PackageTags>.NET;.NET Core;MVC;Entity Framework Core</PackageTags>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
-    <Version>1.0.13</Version>
+    <Version>1.0.14</Version>
     <PackageLicenseFile>License.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>Added a new GetFirst method. Also modified the Update function to first try to find an int primary key, followed by trying to find a GUID primary key if that fails.</PackageReleaseNotes>

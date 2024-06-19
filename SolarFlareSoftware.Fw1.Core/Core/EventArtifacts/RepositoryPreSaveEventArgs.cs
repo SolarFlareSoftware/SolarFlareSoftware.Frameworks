@@ -1,5 +1,6 @@
 ﻿using SolarFlareSoftware.Fw1.Core.Interfaces;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SolarFlareSoftware.Fw1.Core.Events
 {
@@ -8,7 +9,7 @@ namespace SolarFlareSoftware.Fw1.Core.Events
         public T Model { get; }
         public RepositoryPreSaveEventArgs(T model)
         {
-            Model = Model;
+            Model = model;
         }
         public bool CancelSave { get; set; } = false;
     }

@@ -7,7 +7,7 @@ namespace SolarFlareSoftware.Fw1.Core.Events
     {
         public bool SaveSuccessful { get; private set; }
         public IBaseModel EntityBeingSaved { get; private set; }
-        public string ActionBy { get; private set; }
+        public string? ActionBy { get; private set; }
         public ServiceSaveNotificationEventArgs(bool saveSuccessful, IBaseModel entityBeingSaved)
         {
             SaveSuccessful = saveSuccessful;

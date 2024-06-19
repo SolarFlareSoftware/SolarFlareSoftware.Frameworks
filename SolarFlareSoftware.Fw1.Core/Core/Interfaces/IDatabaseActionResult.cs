@@ -10,7 +10,7 @@ namespace SolarFlareSoftware.Fw1.Core.Core.Interfaces
     {
         bool Succeeded { get; set; }
         int RecordsAffected { get; set; }
-        string Message { get; set; }
+        string? Message { get; set; }
         Exception Exception { get; set; }
     }
 }
