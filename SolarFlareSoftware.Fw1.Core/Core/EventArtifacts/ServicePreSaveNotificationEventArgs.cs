@@ -11,7 +11,7 @@ namespace SolarFlareSoftware.Fw1.Core.Events
             set { RepositoryEventArgs.CancelSave = value; } 
         }
         public short Action { get; set; }
-        public string ActionBy { get; set; }
+        public string? ActionBy { get; set; }
         public IBaseModel EntityBeingSaved { get; private set; }
         public IRepository<T> RepositoryBeingUsed { get; private set; }
         public RepositoryPreSaveEventArgs<T> RepositoryEventArgs { get; private protected set; }

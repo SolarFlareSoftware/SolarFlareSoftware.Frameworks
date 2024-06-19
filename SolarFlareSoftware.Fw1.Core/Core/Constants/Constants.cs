@@ -24,5 +24,11 @@
         public const int HISTORY_TABLE_ACTION_DELETE = 3;
         #endregion
 
+        // Database Action Type
+        public const int DATABASE_ACTION_ADD = 1;
+        public const int DATABASE_ACTION_GET = 2;
+        public const int DATABASE_ACTION_UPDATE = 3;
+        public const int DATABASE_ACTION_DELETE = 4;
+
     }
 }

@@ -5,6 +5,6 @@ namespace SolarFlareSoftware.Fw1.Core.Models
 {
     public class ProjectedModelList
     {
-        public IList<IProjectedModel> ModelList { get; set; }
+        public IList<IProjectedModel>? ModelList { get; set; }
     }
 }

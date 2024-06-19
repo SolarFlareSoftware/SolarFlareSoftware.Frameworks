@@ -6,7 +6,7 @@ namespace SolarFlareSoftware.Fw1.Core.Interfaces
     {
         DateTime AuditAddDate { get; set; }
         string AuditAddUserName { get; set; }
-        DateTime AuditChangeDate { get; set; }
-        string AuditChangeUserName { get; set; }
+        DateTime? AuditChangeDate { get; set; }
+        string? AuditChangeUserName { get; set; }
     }
 }
