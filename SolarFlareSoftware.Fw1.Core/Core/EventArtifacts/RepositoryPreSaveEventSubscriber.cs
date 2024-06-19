@@ -1,5 +1,6 @@
 ﻿using SolarFlareSoftware.Fw1.Core.Interfaces;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SolarFlareSoftware.Fw1.Core.Events
 {
@@ -9,13 +10,13 @@ namespace SolarFlareSoftware.Fw1.Core.Events
         public string ActionBy = string.Empty;
         private IBaseModel Entity;
         IRepository<T> Repository;
-        public event EventHandler<ServicePreSaveNotificationEventArgs<T>> PreSaveNotificationEvent;
+        public event EventHandler<ServicePreSaveNotificationEventArgs<T>>? PreSaveNotificationEvent;
 
         public RepositoryPreSaveEventSubscriber(IRepository<T> repository, IBaseModel entity, short action)
         {
             Entity = entity;
             Repository = repository;
-            Repository.RepositoryPreSaveEvent += Repository_RepositoryPreSaveEvent;
+            Repository.RepositoryPreSaveEvent += Repository_RepositoryPreSaveEvent!;
             Action = action;
         }
 
@@ -23,7 +24,7 @@ namespace SolarFlareSoftware.Fw1.Core.Events
         {
             Entity = entity;
             Repository = repository;
-            Repository.RepositoryPreSaveEvent += Repository_RepositoryPreSaveEvent;
+            Repository.RepositoryPreSaveEvent += Repository_RepositoryPreSaveEvent!;
             Action = action;
             ActionBy = actionBy;
         }
@@ -31,10 +32,10 @@ namespace SolarFlareSoftware.Fw1.Core.Events
         private void Repository_RepositoryPreSaveEvent(object sender, RepositoryPreSaveEventArgs<T> e)
         {
             // this is a safety check to deal with potential unsubscribes happening at an inopportune time
-            EventHandler<ServicePreSaveNotificationEventArgs<T>> saveEvent = PreSaveNotificationEvent;
+            EventHandler<ServicePreSaveNotificationEventArgs<T>>? saveEvent = PreSaveNotificationEvent;
             if (saveEvent != null)
             {
-                ServicePreSaveNotificationEventArgs<T> args = null;
+                ServicePreSaveNotificationEventArgs<T>? args = null;
                 if (string.Empty == ActionBy)
                 {
                     args = new ServicePreSaveNotificationEventArgs<T>(e, Entity, Repository, Action);

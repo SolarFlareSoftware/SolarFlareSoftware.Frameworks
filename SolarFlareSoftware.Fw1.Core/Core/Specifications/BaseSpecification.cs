@@ -8,11 +8,11 @@ namespace SolarFlareSoftware.Fw1.Core.Specifications
     public class BaseSpecification<T> : ISpecification<T>
     {
         // this is the "base" concept around which the ISpecification revolves. It is basically a test for a condition. This could be a simple or compound condition.
-        protected Expression<Func<T, bool>> Expression = null;
+        protected Expression<Func<T, bool>>? Expression = null;
         // this property allows one to categorize a validation error that may occur as part of the condition test
-        public string SpecificationErrorKeyOrCategory { get; set; }
+        public string? SpecificationErrorKeyOrCategory { get; set; } = "";
         // a validation error that occured as part of the condition test
-        public string SpecificationErrorMessage { get; set; }
+        public string? SpecificationErrorMessage { get; set; } = "";
 
         /// <summary>
         /// This method returns the object's Expression that can be used in various LINQ applications
@@ -20,29 +20,29 @@ namespace SolarFlareSoftware.Fw1.Core.Specifications
         /// <returns>an Expression{Func{T, bool}}</returns>
         public virtual Expression<Func<T, bool>> ToExpression()
         {
-            return this.Expression;
+            return this.Expression!;
         }
         /// <summary>
         /// This is a collection of LINQ Extension statements that indicate one or more child tables to retrieve along with this object's base type (type T). All tables in this collection will be returned from the 
         /// DbContext when the command is executed
         /// </summary>
-        public List<Expression<Func<T, object>>> Includes { get; } = null;
-        public List<Expression<Func<T, object>>> LeftJoins { get; } = null;
+        public List<Expression<Func<T, object>>>? Includes { get; } = null;
+        public List<Expression<Func<T, object>>>? LeftJoins { get; } = null;
         /// <summary>
         /// This is a collection of strings that define a "path" of Navigation Properties related to this object's base type (type T). This collection is a little more powerful than 
         /// <seealso cref="Includes"/> due to the fact that one can more easily get many levels deep using a chain of Navigation Properties versus using LINQ extensions
         /// </summary>
-        public List<string> NavigationPropertyIncludes { get; } = null;
-        public List<string> NavigationPropertyLeftJoins { get; } = null;
+        public List<string>? NavigationPropertyIncludes { get; } = null;
+        public List<string>? NavigationPropertyLeftJoins { get; } = null;
         /// <summary>
         /// This is a collection of objects that allows for multiple "order by" directives to be applied to the final IQueryable{T}. The QueryResultOrderDirectives allows one to indicate 
         /// both the property on which to perform the ordering and the directionality of the ordering (ascending or descendint)
         /// </summary>
-        public List<SpecificationSortOrder<T>> SortOrderList { get; private set; }
-        public Expression<Func<T, object>> OrderBy { get; private set; } = null;
-        public Expression<Func<T, object>> OrderByDescending { get; private set; } = null;
-        public Expression<Func<T, object>> GroupBy { get; set; } = null;
-        public Expression<Func<T, object>> GroupingProjection { get; set; } = null;
+        public List<SpecificationSortOrder<T>>? SortOrderList { get; private set; } = null;
+        public Expression<Func<T, object>>? OrderBy { get; private set; } = null;
+        public Expression<Func<T, object>>? OrderByDescending { get; private set; } = null;
+        public Expression<Func<T, object>>? GroupBy { get; set; } = null;
+        public Expression<Func<T, object>>? GroupingProjection { get; set; } = null;
 
         /// <summary>
         /// Default constructor. This object's collections are newed up herein.
@@ -116,7 +116,7 @@ namespace SolarFlareSoftware.Fw1.Core.Specifications
 
         protected virtual void AddQueryResultOrderDirective(SpecificationSortOrder<T> directive)
         {
-            SortOrderList.Add(directive);
+            SortOrderList!.Add(directive);
         }
 
         protected virtual void ApplyOrderBy(Expression<Func<T, object>> orderByExpression)
@@ -165,9 +165,9 @@ namespace SolarFlareSoftware.Fw1.Core.Specifications
                     }
                 }
 
-                if (!((ISupportsValidation)entity).ValidationErrors.ContainsKey(SpecificationErrorKeyOrCategory))
+                if (((ISupportsValidation)entity).ValidationErrors != null && !((ISupportsValidation)entity).ValidationErrors!.ContainsKey(SpecificationErrorKeyOrCategory!))
                 {
-                    ((ISupportsValidation)entity).ValidationErrors.Add(SpecificationErrorKeyOrCategory, SpecificationErrorMessage); 
+                    ((ISupportsValidation)entity).ValidationErrors!.Add(SpecificationErrorKeyOrCategory!, SpecificationErrorMessage!); 
                 }
             }
 

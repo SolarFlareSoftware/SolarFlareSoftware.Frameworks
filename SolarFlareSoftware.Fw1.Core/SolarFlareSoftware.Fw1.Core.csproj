@@ -3,19 +3,19 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
-    <Nullable>disable</Nullable>
+    <Nullable>enable</Nullable>
     <AssemblyName>SolarFlareSoftware.Fw1.Core</AssemblyName>
     <RootNamespace>SolarFlareSoftware.Fw1.Core</RootNamespace>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Company>Solar Flare Software, Inc.</Company>
-    <Copyright>© 2022, 2023 Solar Flare Software, Inc.</Copyright>
+    <Copyright>© 2024 Solar Flare Software, Inc.</Copyright>
     <RepositoryUrl>https://github.com/SolarFlareSoftware/SolarFlareSoftware.Frameworks</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>.NET;.NET Core;MVC</PackageTags>
     <Description>This is the core package for the Solar Flare Software FrameworkOne modular framework</Description>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
     <Authors>SolarFlareSoftware</Authors>
-    <Version>1.0.7</Version>
+    <Version>1.0.10</Version>
     <PackageLicenseFile>License.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
   </PropertyGroup>

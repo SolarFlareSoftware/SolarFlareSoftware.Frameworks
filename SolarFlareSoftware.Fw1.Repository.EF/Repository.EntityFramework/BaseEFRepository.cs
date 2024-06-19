@@ -80,27 +80,58 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             bool includes = false;
             if (spec.Includes?.Count > 0)
             {
-                query = spec.Includes.Aggregate(query.Where(spec.ToExpression()), (current, include) => current.Include(include));
+                if (spec.ToExpression() != null)
+                {
+                    query = spec.Includes.Aggregate(query.Where(spec.ToExpression()), (current, include) => current.Include(include)); 
+                }
+                else
+                {
+                    query = spec.Includes.Aggregate(query, (current, include) => current.Include(include));
+                }
                 includes = true;
             }
             if (spec.NavigationPropertyIncludes?.Count > 0)
             {
-                query = spec.NavigationPropertyIncludes.Aggregate(query.Where(spec.ToExpression()), (current, include) => current.Include(include));
+                if (spec.ToExpression() != null)
+                {
+                    query = spec.NavigationPropertyIncludes.Aggregate(query.Where(spec.ToExpression()), (current, include) => current.Include(include)); 
+                }
+                else
+                {
+                    query = spec.NavigationPropertyIncludes.Aggregate(query, (current, include) => current.Include(include));
+                }
                 includes = true;
             }
             if (spec.LeftJoins?.Count > 0)
             {
-                query = spec.LeftJoins.Aggregate(query.Where(spec.ToExpression()), (current, include) => current.Include(include).DefaultIfEmpty());
+                if (spec.ToExpression() != null)
+                {
+                    query = spec.LeftJoins.Aggregate(query.Where(spec.ToExpression()), (current, include) => current.Include(include).DefaultIfEmpty()); 
+                }
+                else
+                {
+                    query = spec.LeftJoins.Aggregate(query, (current, include) => current.Include(include).DefaultIfEmpty()); 
+                }
                 includes = true;
             }
             if (spec.NavigationPropertyLeftJoins?.Count > 0)
             {
-                query = spec.NavigationPropertyLeftJoins.Aggregate(query.Where(spec.ToExpression()), (current, include) => current.Include(include).DefaultIfEmpty());
+                if (spec.ToExpression() != null)
+                {
+                    query = spec.NavigationPropertyLeftJoins.Aggregate(query.Where(spec.ToExpression()), (current, include) => current.Include(include).DefaultIfEmpty()); 
+                }
+                else
+                {
+                    query = spec.NavigationPropertyLeftJoins.Aggregate(query, (current, include) => current.Include(include).DefaultIfEmpty());
+                }
                 includes = true;
             }
             if (!includes)
             {
-                query = query.Where(spec.ToExpression());
+                if (spec.ToExpression() != null)
+                {
+                    query = query.Where(spec.ToExpression()); 
+                }
             }
 
             return query;
@@ -141,13 +172,35 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
         {
             if (spec.Includes?.Count > 0)
             {
-                query = spec.Includes.Aggregate(query.Where(spec.ToExpression()), (current, include) => current.Include(include));
+                if(spec.ToExpression() == null)
+                {
+                    query = spec.Includes.Aggregate(query, (current, include) => current.Include(include));
+                }
+                else
+                {
+                    query = spec.Includes.Aggregate(query.Where(spec.ToExpression()), (current, include) => current.Include(include)); 
+                }
             }
             if (spec.NavigationPropertyIncludes?.Count > 0)
             {
-                query = spec.NavigationPropertyIncludes.Aggregate(query.Where(spec.ToExpression()), (current, include) => current.Include(include));
+                if (spec.ToExpression() == null)
+                {
+                    query = spec.NavigationPropertyIncludes.Aggregate(query, (current, include) => current.Include(include));
+                }
+                else
+                {
+                    query = spec.NavigationPropertyIncludes.Aggregate(query.Where(spec.ToExpression()), (current, include) => current.Include(include)); 
+                }
             }
-            IQueryable<IProjectedModel> amQuery = query.Where(spec.ToExpression()).Select(projection.Projection);
+            IQueryable<IProjectedModel> amQuery = null;
+            if(spec.ToExpression() == null)
+            {
+                amQuery = query.Select(projection.Projection);
+            }
+            else
+            {
+                amQuery = query.Where(spec.ToExpression()).Select(projection.Projection);
+            }
             return amQuery;
         }
 
@@ -295,11 +348,13 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
         /// <returns>a List of DomainObjects of type T</returns>
         public virtual List<T> GetAll()
         {
+            Validator?.SetDatabaseActionContext(Constants.DATABASE_ACTION_GET);
             return _dbContext.Set<T>().ToList();
         }
 
         public virtual List<T> GetAllWithSpecification(ISpecification<T> spec)
         {
+            Validator?.SetDatabaseActionContext(Constants.DATABASE_ACTION_GET);
             IQueryable<T> query = _dbContext.Set<T>().AsQueryable();
             query = AddSortOrdersToQuery(query, spec.SortOrderList);
 
@@ -309,6 +364,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
 
         public virtual BaseModelPagedList<T> GetAllWithSpecification(ISpecification<T> spec, int page = 0, int pageSize = 0)
         {
+            Validator?.SetDatabaseActionContext(Constants.DATABASE_ACTION_GET);
             IQueryable<T> query = _dbContext.Set<T>().AsQueryable();
             query = AddSortOrdersToQuery(query, spec.SortOrderList);
 
@@ -327,6 +383,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
 
         public virtual BaseModelPagedList<T> GetAllWithSortOrders(List<SpecificationSortOrder<T>> sortOrders, int page = 0, int pageSize = 0)
         {
+            Validator?.SetDatabaseActionContext(Constants.DATABASE_ACTION_GET);
             BaseModelPagedList<T> depl = new BaseModelPagedList<T>();
             IQueryable<T> query = _dbContext.Set<T>().AsQueryable();
             query = AddSortOrdersToQuery(query, sortOrders);
@@ -343,6 +400,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
 
         public virtual BaseModelPagedList<T> GetAllWithSortOrder(SpecificationSortOrder<T> sortOrder, int page = 0, int pageSize = 0)
         {
+            Validator?.SetDatabaseActionContext(Constants.DATABASE_ACTION_GET);
             BaseModelPagedList<T> depl = new BaseModelPagedList<T>();
             IQueryable<T> query = _dbContext.Set<T>().AsQueryable();
             query = AddSortOrderToQuery(query, sortOrder);
@@ -359,6 +417,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
 
         public virtual T GetFirst()
         {
+            Validator?.SetDatabaseActionContext(Constants.DATABASE_ACTION_GET);
             return _dbContext.Set<T>().First();
         }
 
@@ -369,6 +428,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
         /// <returns>a single item of type T that matches the ISpecification passed in</returns>
         public virtual T GetItemWithSpecification(ISpecification<T> spec)
         {
+            Validator?.SetDatabaseActionContext(Constants.DATABASE_ACTION_GET);
             IQueryable<T> query = _dbContext.Set<T>().AsQueryable();
             query = ExtendQueryWithAllIncludes(spec, query);
 
@@ -392,6 +452,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
         /// <returns>the count of items of type T matching the ISpecification object passed in</returns>        
         public virtual int GetItemCountWithSpecification(ISpecification<T> spec)
         {
+            Validator?.SetDatabaseActionContext(Constants.DATABASE_ACTION_GET);
             IQueryable<T> query = _dbContext.Set<T>().AsQueryable();
             query = ExtendQueryWithAllIncludes(spec, query);
 
@@ -425,6 +486,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
         /// <returns>a List of items of type T that match the ISpecification{T} passed in. If page and pageSize were supplied, this will be a subset of the total matches</returns>
         public virtual BaseModelPagedList<T> GetListWithSpecification(ISpecification<T> spec, int page = 0, int pageSize = 0)
         {
+            Validator?.SetDatabaseActionContext(Constants.DATABASE_ACTION_GET);
             BaseModelPagedList<T> depl = new BaseModelPagedList<T>();
 
             IQueryable<T> query = _dbContext.Set<T>().AsQueryable();
@@ -465,6 +527,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
 
         public virtual List<IGrouping<object,T>> GetGroupedListWithSpecification(ISpecification<T> spec, int page = 0, int pageSize = 0)
         {
+            Validator?.SetDatabaseActionContext(Constants.DATABASE_ACTION_GET);
             IQueryable<T> query = _dbContext.Set<T>().AsQueryable(); 
             query = AddSortOrdersToQuery(query, spec.SortOrderList);
             query = ExtendQueryWithAllIncludes(spec, query);
@@ -484,6 +547,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
 
         public virtual BaseModelPagedList<T> GetPagedList(List<SpecificationSortOrder<T>> sortOrderList = null, int page = 0, int pageSize = 0)
         {
+            Validator?.SetDatabaseActionContext(Constants.DATABASE_ACTION_GET);
             BaseModelPagedList<T> depl = new BaseModelPagedList<T>();
             IQueryable<T> query = _dbContext.Set<T>().AsQueryable();
             if (sortOrderList != null)
@@ -525,9 +589,18 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
 
         public virtual ProjectedModelPagedList GetProjectedListWithSpecification(IProjection projection, ISpecification<T> spec, int page = 0, int pageSize = 0)
         {
+            Validator?.SetDatabaseActionContext(Constants.DATABASE_ACTION_GET);
             ProjectedModelPagedList depl = new ProjectedModelPagedList();
 
-            IQueryable<T> query = _dbContext.Set<T>().AsQueryable();
+            IQueryable<T> query = null;
+            try
+            {
+                query = _dbContext.Set<T>().AsQueryable();
+            }
+            catch(Exception ex)
+            {
+                query = _dbContext.Set<T>(typeof(T).ToString()).AsQueryable();
+            }
             query = AddSortOrdersToQuery(query, spec.SortOrderList);
 
             IQueryable<IProjectedModel> projectedQuery = null;
@@ -647,6 +720,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
 
         public virtual List<T> GetListFromSql(string sql, params QueryParameter[] args)
         {
+            Validator?.SetDatabaseActionContext(Constants.DATABASE_ACTION_GET);
             List<T> resultList = null;
             if (args?.Length > 0)
             {
@@ -726,6 +800,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
         /// <returns>the added entity. NOTE: the <seealso cref="ISupportsValidation"/> properties are used to pass any error information back in the entity.</returns>
         public virtual T Add(T entity)
         {
+            Validator?.SetDatabaseActionContext(Constants.DATABASE_ACTION_ADD);
             DatabaseActionResult result = null;
             entity = PreActionValidation(entity);
             if (!entity.IsValid) {
@@ -761,6 +836,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
         /// <returns>true if added, false if not. NOTE: the <seealso cref="ISupportsValidation"/> properties are used to pass any error information back in the entity.</returns>
         public virtual bool AddRange(List<T> models)
         {
+            Validator?.SetDatabaseActionContext(Constants.DATABASE_ACTION_ADD);
             bool successful = true;
 
             foreach (T model in models)
@@ -809,6 +885,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
         /// <returns>the updated entity. NOTE: the <seealso cref="ISupportsValidation"/> properties are used to pass any error information back in the entity.</returns>
         public virtual T Update(T entityIn)
         {
+            Validator?.SetDatabaseActionContext(Constants.DATABASE_ACTION_UPDATE);
             entityIn = PreActionValidation(entityIn);
             if (!entityIn.IsValid)
             {
@@ -953,6 +1030,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
         /// <returns>true if updates successful, false if not.</returns>
         public virtual bool UpdateRange(List<T> models)
         {
+            Validator?.SetDatabaseActionContext(Constants.DATABASE_ACTION_UPDATE);
             bool successful = true;
 
             foreach (T model in models)
@@ -999,6 +1077,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
         /// <returns>true if deleted, false if not.</returns>
         public virtual bool Delete(T entity)
         {
+            Validator?.SetDatabaseActionContext(Constants.DATABASE_ACTION_DELETE);
             try
             {
                 _dbContext.Set<T>().Remove(entity);
@@ -1027,6 +1106,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
         /// <returns>true if delete, false if not.</returns>
         public virtual bool DeleteRange(List<T> models)
         {
+            Validator?.SetDatabaseActionContext(Constants.DATABASE_ACTION_DELETE);
             bool successful = true;
             try
             {

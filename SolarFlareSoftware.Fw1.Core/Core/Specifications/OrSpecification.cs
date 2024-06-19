@@ -1,4 +1,5 @@
-﻿using SolarFlareSoftware.Fw1.Core.Interfaces;
+﻿using SolarFlareSoftware.Fw1.Core.Core.Exceptions;
+using SolarFlareSoftware.Fw1.Core.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,8 @@ namespace SolarFlareSoftware.Fw1.Core.Specifications
     /// <typeparam name="T">any type where T is a BaseModel</typeparam>
     public class OrSpecification<T> : BaseSpecification<T>
     {
-        private readonly List<ISpecification<T>> _specifications = null;
+        private readonly List<ISpecification<T>>? _specifications = null;
+        protected string _orGrpErrorMsgOverride = string.Empty;
 
         public OrSpecification(ISpecification<T> left, ISpecification<T> right)
         {
@@ -22,8 +24,16 @@ namespace SolarFlareSoftware.Fw1.Core.Specifications
             _specifications.Add(right);
         }
 
+        public void SetOverrideErrorMsg(string msg)
+        {
+            _orGrpErrorMsgOverride = msg;
+        }
+
         public override Expression<Func<T, bool>> ToExpression()
         {
+            // guard clause. this will raise a known exception
+            if (_specifications == null || _specifications.Count == 0) throw new SpecificationExpressionNotDefinedException("Or");
+
             ParameterExpression param = System.Linq.Expressions.Expression.Parameter(typeof(T), "s");
 
             var body = _specifications.Select(exp => exp.ToExpression().Body)
@@ -31,18 +41,20 @@ namespace SolarFlareSoftware.Fw1.Core.Specifications
                 .Aggregate((left, right) => System.Linq.Expressions.Expression.Or(left, right));
 
             return System.Linq.Expressions.Expression.Lambda<Func<T, bool>>(body, param);
-
         }
 
         public override bool IsSatisfiedBy(T entity)
         {
-            bool s1IsSatisfiedBy = _specifications[0].IsSatisfiedBy(entity);
+            // guard clause. this will raise a known exception
+            if (_specifications == null || _specifications.Count == 0) throw new SpecificationExpressionNotDefinedException("Or");
+
+            bool s1IsSatisfiedBy = _specifications![0].IsSatisfiedBy(entity);
             bool s2IsSatisfiedBy = _specifications[1].IsSatisfiedBy(entity);
 
             string tmpErrorMessage = "";
 
-            // only build an error message for this test if an overarching error message has not already been defined by the system
-            if (this.SpecificationErrorMessage.Length == 0)
+            // only display the 'AND group' error message if the "override msg" is empty. otherwise, just display the "override msg".
+            if (_orGrpErrorMsgOverride == string.Empty)
             {
                 if (!s1IsSatisfiedBy && !s2IsSatisfiedBy)
                 {
@@ -55,8 +67,12 @@ namespace SolarFlareSoftware.Fw1.Core.Specifications
                     this.SpecificationErrorMessage = $"Condition not satisfied: {tmpErrorMessage}";
                 } 
             }
+            else
+            {
+                SpecificationErrorMessage = _orGrpErrorMsgOverride;
+            }
 
-            return s1IsSatisfiedBy && s2IsSatisfiedBy;
+            return (s1IsSatisfiedBy == true || s2IsSatisfiedBy == true);
         }
     }
 }

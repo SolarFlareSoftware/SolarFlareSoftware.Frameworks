@@ -5,7 +5,7 @@ namespace SolarFlareSoftware.Fw1.Core.Models
 {
     public class BaseModelPagedList<T> : IBaseModelPagedList<T> where T : IBaseModel
     {
-        public IList<T> EntityList { get; set; }
+        public IList<T>? EntityList { get; set; }
         public int PageNumber { get; set; }
         public int PageSize { get; set; }
         // this is the count of records that are contained in EntityList. This may differ from EntityPopulationCount in the case of paging results
