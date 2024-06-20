@@ -31,12 +31,18 @@ namespace SolarFlareSoftware.Fw1.Services.Core
 
         public virtual bool DeleteById(Guid id)
         {
-            return Repository.Delete(GetById(id));
+            T? objT = GetById(id);
+            if (objT == null) return false;
+
+            return Repository.Delete(objT);
         }
 
         public virtual bool DeleteById(int id)
         {
-            return Repository.Delete(GetById(id));
+            T? objT = GetById(id);
+            if (objT == null) return false;
+
+            return Repository.Delete(objT);
         }
 
         public virtual ICollection<T> GetAll()
@@ -44,9 +50,9 @@ namespace SolarFlareSoftware.Fw1.Services.Core
             return Repository.GetAll();
         }
 
-        public abstract T GetById(Guid id);
+        public abstract T? GetById(Guid id);
 
-        public abstract T GetById(int id);
+        public abstract T? GetById(int id);
 
         public virtual T? GetBySpecification(ISpecification<T> spec)
         {
