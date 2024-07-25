@@ -13,5 +13,6 @@ namespace SolarFlareSoftware.Fw1.Core.Interfaces
         bool Complete();
         void Rollback();
         bool JoinTransaction(IBaseRepository repository);
+        bool InTransaction { get; }
     }
 }
