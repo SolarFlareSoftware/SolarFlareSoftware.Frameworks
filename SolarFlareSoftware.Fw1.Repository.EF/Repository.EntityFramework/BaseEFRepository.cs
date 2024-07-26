@@ -614,7 +614,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             // only add the Skip and Take if both paging elements were provided
             if (!(page == 0 && pageSize == 0))
             {
-                query = query.Skip((page - 1) * pageSize).Take(pageSize);
+                projectedQuery = projectedQuery.Skip((page - 1) * pageSize).Take(pageSize);
             }
             depl.ModelPopulationCount = GetItemCountWithSpecification(spec);
             depl.PageNumber = page;

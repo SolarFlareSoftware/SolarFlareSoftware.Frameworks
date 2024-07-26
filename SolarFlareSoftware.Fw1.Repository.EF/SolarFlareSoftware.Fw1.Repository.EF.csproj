@@ -12,7 +12,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>.NET;.NET Core;MVC;Entity Framework Core</PackageTags>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
-    <Version>2.0.3</Version>
+    <Version>2.0.4</Version>
     <PackageLicenseFile>License.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>Added a new GetFirst method. Also modified the Update function to first try to find an int primary key, followed by trying to find a GUID primary key if that fails.</PackageReleaseNotes>
