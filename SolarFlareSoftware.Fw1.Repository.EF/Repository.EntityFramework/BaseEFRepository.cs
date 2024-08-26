@@ -958,11 +958,19 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                                         dbItemsEntry.Load();
 
                                         Dictionary<int, BaseModel> dbItemsMap = new Dictionary<int, BaseModel>();
+                                        List<BaseModel> listNewItems = new List<BaseModel>();
                                         // map the contents of the connected object's collection using the Id
                                         foreach (var element in dbItemsEntry.CurrentValue)
                                         {
                                             int pk = GetKeyValueFromEntityForCollectionProcessing(element);
-                                            dbItemsMap.Add(pk, (BaseModel)element);
+                                            if (pk == 0)
+                                            {
+                                                listNewItems.Add((BaseModel)element);
+                                            }
+                                            else
+                                            {
+                                                dbItemsMap.Add(pk, (BaseModel)element);
+                                            }
                                         }
 
                                         // get the elements from the disconnected entity's collection
@@ -989,6 +997,12 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                                                 dbItemsMap.Remove(itemKeyValue);
                                             }
                                         }
+                                        foreach(var newItem in listNewItems)
+                                        {
+                                            accessor.Add(entityIn, newItem, true);
+                                        }
+
+                                        listNewItems = null;
 
                                         // perform the necessary deletes
                                         foreach (BaseModel oldItem in dbItemsMap.Values)
