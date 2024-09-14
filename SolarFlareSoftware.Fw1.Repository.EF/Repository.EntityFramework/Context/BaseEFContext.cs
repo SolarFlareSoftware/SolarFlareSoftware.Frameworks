@@ -1,4 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿//Copyright 2020-2024 Solar Flare Software, Inc. All Rights Reserved. Permission to use, copy, modify,
+//and distribute this software and its documentation for educational, research, and not-for-profit purposes,
+//without fee and without a signed licensing agreement is hereby prohibited. Contact Solar Flare Software, Inc.
+//at 6834 Lincoln Way W, Saint Thomas, PA 17252 or at sales@solarflaresoftware.com for licensing opportunities.
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
@@ -19,17 +23,17 @@ namespace SolarFlareSoftware.Fw1.Repository.EF.Context
         {
             get { return this.ContextId.ToString(); }
         }
-        public IDbContextTransaction Transaction { get; set; } = null;
-        public ILogger<IDatabaseContext> Logger { get; set; }
+        public IDbContextTransaction? Transaction { get; set; } = null;
+        public ILogger<IDatabaseContext>? Logger { get; set; }
         public IPrincipal Principal { get; set; }
 
-        public BaseEFContext(IPrincipal principal, ILogger<IDatabaseContext> logger) 
+        public BaseEFContext(IPrincipal principal, ILogger<IDatabaseContext>? logger) 
         {
             Principal = principal;
             Logger = logger;
         }
 
-        protected BaseEFContext(DbContextOptions options, IPrincipal principal, ILogger<IDatabaseContext> logger) : base(options)
+        protected BaseEFContext(DbContextOptions options, IPrincipal principal, ILogger<IDatabaseContext>? logger) : base(options)
         {
             Principal = principal;
             Logger = logger;
@@ -87,7 +91,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF.Context
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Error in BaseEFContext.Save");
+                Logger?.LogError(ex, "Error in BaseEFContext.Save");
                 result.Exception = ex;
             }
 

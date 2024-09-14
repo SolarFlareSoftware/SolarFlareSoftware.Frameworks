@@ -1,4 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+﻿//Copyright 2020-2024 Solar Flare Software, Inc. All Rights Reserved. Permission to use, copy, modify,
+//and distribute this software and its documentation for educational, research, and not-for-profit purposes,
+//without fee and without a signed licensing agreement is hereby prohibited. Contact Solar Flare Software, Inc.
+//at 6834 Lincoln Way W, Saint Thomas, PA 17252 or at sales@solarflaresoftware.com for licensing opportunities.
+using Microsoft.Extensions.Logging;
 using SolarFlareSoftware.Fw1.Core.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -7,9 +11,11 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
 {
     public class UnitOfWork : IUnitOfWork, IDisposable
     {
-        protected bool _inTransaction = false;
+        private bool _inTransaction = false;
+        public bool InTransaction { get => _inTransaction; }
+
         private List<IBaseRepository> EnlistedRepositories { get; set; }
-        private ILogger Logger { get; set; }
+        private ILogger? Logger { get; set; }
 
         public UnitOfWork(ILogger<UnitOfWork> logger)
         {
@@ -24,7 +30,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
 
         public bool BeginTransaction()
         {
-            if (!_inTransaction)
+            if (!InTransaction)
             {
                 if(EnlistedRepositories?.Count > 0)
                 {
@@ -40,14 +46,14 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                     _inTransaction = false;
                 }
             }
-            return _inTransaction;
+            return InTransaction;
         }
 
         public bool BeginTransaction(IBaseRepository repository)
         {
             bool inTransaction;
             JoinTransaction(repository);
-            if (_inTransaction)
+            if (InTransaction)
             {
                 inTransaction = true;
                 // the Unit of Work's transaction is already in progress, so only the new database needs to establish a Transaction condition
@@ -102,11 +108,11 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
 
             if(saveFailed)
             {
-                Logger.LogError(string.Format("Error in UnitOfWork.Complete involving a {0} record", modelType));
+                Logger?.LogError(string.Format("Error in UnitOfWork.Complete involving a {0} record", modelType));
             }
             else
             {
-                if (_inTransaction)
+                if (InTransaction)
                 {
                     List<string> contextIDs = new List<string>();
 
@@ -126,7 +132,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                             }
                             catch (Exception ex)
                             {
-                                Logger.LogError(ex, string.Format("Error in UnitOfWork.Complete trying to commit the transaction related to a {0} record)", modelType));
+                                Logger?.LogError(ex, string.Format("Error in UnitOfWork.Complete trying to commit the transaction related to a {0} record)", modelType));
                                 committed = false;
                                 throw;
                             }
@@ -146,7 +152,7 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
 
         public void Rollback()
         {
-            if (_inTransaction)
+            if (InTransaction)
             {
                 string modelType = string.Empty;
                 foreach (IBaseRepository repo in EnlistedRepositories)
@@ -158,31 +164,12 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
                     }
                     catch (Exception ex)
                     {
-                        Logger.LogError(ex, string.Format("Error in UnitOfWork.Rollback trying to rollback the transaction involving a {0} record)", modelType));
+                        Logger?.LogError(ex, string.Format("Error in UnitOfWork.Rollback trying to rollback the transaction involving a {0} record)", modelType));
                         throw;
                     }
                 }
             }
         }
-
-        //private bool Save(IDatabaseContext context)
-        //{
-        //    bool saveSuccessful = false;
-        //    string modelType = string.Empty;
-
-        //    try
-        //    {
-        //        // the IDatabaseContext object will return a true if the save was successful, false if not.
-        //        var result = context.Save();
-        //        saveSuccessful = result.Succeeded;
-        //    }
-        //    catch (Exception)
-        //    {
-        //        // don't log (EFContext already did. just avoid blowing up.
-        //    }
-
-        //    return saveSuccessful;
-        //}
 
         //private bool disposed = false;
 

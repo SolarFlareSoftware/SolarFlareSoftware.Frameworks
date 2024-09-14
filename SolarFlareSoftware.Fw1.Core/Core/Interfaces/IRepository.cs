@@ -1,4 +1,8 @@
-﻿using SolarFlareSoftware.Fw1.Core.Events;
+﻿//Copyright 2020-2024 Solar Flare Software, Inc. All Rights Reserved. Permission to use, copy, modify,
+//and distribute this software and its documentation for educational, research, and not-for-profit purposes,
+//without fee and without a signed licensing agreement is hereby prohibited. Contact Solar Flare Software, Inc.
+//at 6834 Lincoln Way W, Saint Thomas, PA 17252 or at sales@solarflaresoftware.com for licensing opportunities.
+using SolarFlareSoftware.Fw1.Core.Events;
 using SolarFlareSoftware.Fw1.Core.Models;
 using SolarFlareSoftware.Fw1.Core.Specifications;
 using System;
@@ -13,11 +17,11 @@ namespace SolarFlareSoftware.Fw1.Core.Interfaces
         public event EventHandler<RepositoryPreSaveEventArgs<T>> RepositoryPreSaveEvent;
         public event EventHandler<RepositorySaveEventArgs> RepositorySaveEvent;
 
-        T GetItemWithSpecification(ISpecification<T> spec);
+        T? GetItemWithSpecification(ISpecification<T> spec);
 
         int GetItemCountWithSpecification(ISpecification<T> spec);
 
-        IProjectedModel GetProjectedItemWithSpecification(IProjection projection, ISpecification<T> spec);
+        IProjectedModel? GetProjectedItemWithSpecification(IProjection projection, ISpecification<T> spec);
 
         BaseModelPagedList<T> GetListWithSpecification(ISpecification<T> spec, int page = 0, int pageSize = 0);
 
@@ -34,11 +38,11 @@ namespace SolarFlareSoftware.Fw1.Core.Interfaces
 
         BaseModelPagedList<T> GetAllWithSortOrder(SpecificationSortOrder<T> sortOrder, int page = 0, int pageSize = 0);
 
-        BaseModelPagedList<T> GetPagedList(List<SpecificationSortOrder<T>> sortOrders = null, int page = 0, int pageSize = 0);
+        BaseModelPagedList<T> GetPagedList(List<SpecificationSortOrder<T>>? sortOrders = null, int page = 0, int pageSize = 0);
 
-        List<T> GetListFromSql(string sql, params QueryParameter[] args);
+        List<T>? GetListFromSql(string sql, params QueryParameter[] args);
 
-        T GetItemFromSql(string sql, params QueryParameter[] args);
+        T? GetItemFromSql(string sql, params QueryParameter[] args);
 
         Task<int> ExecuteStoredProcedure(string spName, params QueryParameter[] args);
 
