@@ -793,6 +793,25 @@ namespace SolarFlareSoftware.Fw1.Repository.EF
             return model;
         }
 
+        public virtual List<T>? GetListFromSqlString(string sql, params SqlParameter[] args)
+        {
+            Validator?.SetDatabaseActionContext(Constants.DATABASE_ACTION_GET);
+            List<T>? resultList = null;
+
+            resultList = _dbContext.Set<T>().FromSqlRaw(sql, args).ToList();
+
+            return resultList;
+        }
+
+        public virtual T? GetItemFromSqlString(string sql, params SqlParameter[] args)
+        {
+            T? model = null;
+
+            model = (T?)_dbContext.Set<T>().FromSqlRaw(sql, args).AsEnumerable().Take(1).FirstOrDefault();
+
+            return model;
+        }
+
         private T PreActionValidation(T entity)
         {
             if(Validator == null)
