@@ -19,7 +19,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SolarFlareSoftware.Fw1.Core.Core.Interfaces
+namespace SolarFlareSoftware.Fw1.Core.Interfaces
 {
     public interface IDatabaseActionResult
     {

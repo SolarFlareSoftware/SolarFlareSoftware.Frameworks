@@ -13,7 +13,7 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.[8]
  * 
  */
-using SolarFlareSoftware.Fw1.Core.Core.Interfaces;
+using SolarFlareSoftware.Fw1.Core.Interfaces;
 using System.Data.Common;
 
 namespace SolarFlareSoftware.Fw1.Core.Interfaces

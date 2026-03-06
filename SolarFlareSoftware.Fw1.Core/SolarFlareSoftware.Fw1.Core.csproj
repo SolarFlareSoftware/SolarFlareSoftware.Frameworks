@@ -15,9 +15,10 @@
     <Description>This is the core package for the Solar Flare Software FrameworkOne modular framework. </Description>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
     <Authors>SolarFlareSoftware</Authors>
-    <Version>3.0.1</Version>
+    <Version>3.0.2</Version>
     <PackageLicenseFile>License.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageReleaseNotes>Updated interface definitions related to enhancements to the Repository.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

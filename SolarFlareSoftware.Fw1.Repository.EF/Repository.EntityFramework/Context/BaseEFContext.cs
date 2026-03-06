@@ -17,7 +17,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
-using SolarFlareSoftware.Fw1.Core.Core.Interfaces;
 using SolarFlareSoftware.Fw1.Core.Interfaces;
 using SolarFlareSoftware.Fw1.Core.Models;
 using System;

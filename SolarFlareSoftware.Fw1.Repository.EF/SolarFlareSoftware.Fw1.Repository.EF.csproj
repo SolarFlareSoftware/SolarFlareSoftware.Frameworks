@@ -6,16 +6,16 @@
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Company>Solar Flare Software, Inc.</Company>
-    <Copyright>© 2024 Solar Flare Software, Inc.</Copyright>
+    <Copyright>© 2025 Solar Flare Software, Inc.</Copyright>
     <RepositoryUrl>https://github.com/SolarFlareSoftware/SolarFlareSoftware.Frameworks</RepositoryUrl>
     <Description>An implementation of Solar Flare's FrameworkOne Repository and Unit of Work interfaces. Requires Entity Framework Core.</Description>
     <RepositoryType>git</RepositoryType>
     <PackageTags>.NET;.NET Core;MVC;Entity Framework Core</PackageTags>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
-    <Version>3.0.3</Version>
+    <Version>3.0.5</Version>
     <PackageLicenseFile>License.txt</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-    <PackageReleaseNotes>Added a new GetFirst method. Also modified the Update function to first try to find an int primary key, followed by trying to find a GUID primary key if that fails.</PackageReleaseNotes>
+    <PackageReleaseNotes>Updated the Entity Framework being used to 8.0.11</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,13 +29,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.5">
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.11">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.5">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.11">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
